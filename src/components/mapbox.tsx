@@ -20,5 +20,5 @@ export const MapBox = () => {
 		}
 	}, []);
 
-	return <div ref={mapContainer} style={{ width: "100dvw", height: "100dvh" }} />;
+	return <div className="h-full w-full" ref={mapContainer} />;
 };

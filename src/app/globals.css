@@ -67,6 +67,12 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground h-full w-full;
+  }
+  html {
+    @apply h-full w-full;
+  }
+  #root {
+    @apply h-full w-full;
   }
 }
