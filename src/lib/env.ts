@@ -5,17 +5,15 @@ import { z } from "zod";
 export const env = createEnv({
 	server: {
 		DATABASE_URL: z.string().url(),
-		DATABASE_SSL: z.boolean(),
+		DATABASE_SSL: z.enum(["true", "false"]),
 	},
 	clientPrefix: "NEXT_PUBLIC_",
 	client: {
-		NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: z.string().min(1),
 		NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().min(1),
 	},
 	runtimeEnv: {
 		DATABASE_URL: process.env.DATABASE_URL,
 		DATABASE_SSL: process.env.DATABASE_SSL,
-		NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN,
 		NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
 	},
 });
