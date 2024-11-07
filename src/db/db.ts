@@ -7,6 +7,6 @@ import * as schema from "./schema";
 
 const pgPool = new PGPool({
 	connectionString: env.DATABASE_URL,
-	ssl: env.DATABASE_SSL,
+	ssl: env.DATABASE_SSL === true ? true : { rejectUnauthorized: false },
 });
 export const db = pgDrizzle(pgPool, { schema });
