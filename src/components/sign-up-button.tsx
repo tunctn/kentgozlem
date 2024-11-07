@@ -47,12 +47,12 @@ export function SignUpButton() {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button>Sign Up</Button>
+				<Button variant="glass">Kayıt Ol</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Create an account</DialogTitle>
-					<DialogDescription>Enter your details below to create your account</DialogDescription>
+					<DialogTitle>Kayıt Ol</DialogTitle>
+					<DialogDescription>Kayıt olmak için aşağıdaki bilgileri doldurun.</DialogDescription>
 				</DialogHeader>
 
 				<Form {...form}>
@@ -62,9 +62,9 @@ export function SignUpButton() {
 							name="name"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Name</FormLabel>
+									<FormLabel>Ad Soyad</FormLabel>
 									<FormControl>
-										<Input placeholder="John Doe" {...field} />
+										<Input placeholder="Ad Soyad" {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -75,9 +75,9 @@ export function SignUpButton() {
 							name="email"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Email</FormLabel>
+									<FormLabel>E-posta</FormLabel>
 									<FormControl>
-										<Input placeholder="john@example.com" type="email" {...field} />
+										<Input placeholder="E-posta" type="email" {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -88,7 +88,7 @@ export function SignUpButton() {
 							name="password"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Password</FormLabel>
+									<FormLabel>Şifre</FormLabel>
 									<FormControl>
 										<Input type="password" {...field} />
 									</FormControl>
@@ -97,7 +97,9 @@ export function SignUpButton() {
 							)}
 						/>
 						<DialogFooter>
-							<Button type="submit">Create account</Button>
+							<Button className="w-full" type="submit">
+								Kent Gözlem'e Kayıt Ol
+							</Button>
 						</DialogFooter>
 					</form>
 				</Form>

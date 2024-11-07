@@ -9,7 +9,9 @@ export function SignInButton() {
 				await signIn();
 			}}
 		>
-			<Button type="submit">Sign In</Button>
+			<Button variant="glass" type="submit">
+				Giriş Yap
+			</Button>
 		</form>
 	);
 }

@@ -76,3 +76,13 @@ body {
     @apply h-full w-full;
   }
 }
+
+
+@media (hover: none) and (pointer: coarse) {
+  input,
+  textarea,
+  select,
+  button {
+    font-size: 16px !important;
+  }
+}
