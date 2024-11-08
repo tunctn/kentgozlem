@@ -6,24 +6,34 @@ import { env } from "@/lib/env";
 import mapboxgl from "mapbox-gl";
 import { useEffect, useRef } from "react";
 
-import { getFromLocalStorage, saveToLocalStorage } from "@/utils/local-storage";
+import { type MapViewState, type UserCoords, getFromLocalStorage } from "@/utils/local-storage";
+import { defaultViewState, useMapStore } from "./map-store";
 
-import { useMapboxStore } from "./mapbox-store";
+const refineMapCoord = (coord: number) => {
+	return Math.round(coord * 1000000) / 1000000;
+};
 
 export const Mapbox = () => {
 	const mapContainerRef = useRef<HTMLDivElement>(null);
-	const { setMap } = useMapboxStore();
+	const { setMap, setContextMenu, setViewState } = useMapStore();
 
 	useEffect(() => {
 		if (!mapContainerRef.current) return;
 
-		// Load saved view state or use defaults
-		const savedViewState = getFromLocalStorage("mapViewState") || {
-			center: [29.026005309371357, 41.01624869192369],
-			zoom: 11.5,
-			pitch: 0,
-			bearing: 0,
-		};
+		const localViewState = getFromLocalStorage("map-view-state") as MapViewState | null;
+		const lastUserCoords = getFromLocalStorage("last-user-coords") as UserCoords | null;
+
+		let viewState: MapViewState = defaultViewState;
+		if (lastUserCoords) {
+			viewState = {
+				center: lastUserCoords,
+				zoom: 15.5,
+				pitch: 0,
+				bearing: 0,
+			};
+		} else if (localViewState) {
+			viewState = localViewState;
+		}
 
 		const map = new mapboxgl.Map({
 			container: mapContainerRef.current,
@@ -31,20 +41,51 @@ export const Mapbox = () => {
 			style: "mapbox://styles/mapbox/standard",
 			projection: "globe",
 			language: "tr",
-			...savedViewState,
+			...viewState,
 		});
 		setMap(map);
+
+		map.on("contextmenu", (e) => {
+			e.preventDefault();
+
+			map.stop();
+
+			setContextMenu({
+				open: true,
+				spawnCoords: {
+					x: e.point.x,
+					y: e.point.y,
+				},
+				mapCoords: {
+					lat: refineMapCoord(e.lngLat.lat),
+					lng: refineMapCoord(e.lngLat.lng),
+				},
+			});
+		});
 
 		// Save view state when map moves
 		map.on("moveend", () => {
 			if (!map) return;
 
-			const viewState = {
+			const viewState: MapViewState = {
 				center: map.getCenter().toArray(),
 				zoom: map.getZoom(),
+				pitch: map.getPitch(),
+				bearing: map.getBearing(),
 			};
+			setViewState({ viewState, saveCookie: true });
+		});
 
-			saveToLocalStorage("mapViewState", viewState);
+		map.on("move", () => {
+			if (!map) return;
+
+			const viewState: MapViewState = {
+				center: map.getCenter().toArray(),
+				zoom: map.getZoom(),
+				pitch: map.getPitch(),
+				bearing: map.getBearing(),
+			};
+			setViewState({ viewState, saveCookie: false });
 		});
 
 		map.on("style.load", () => {
@@ -70,7 +111,7 @@ export const Mapbox = () => {
 
 			map.setConfigProperty("basemap", "lightPreset", lightPreset);
 		});
-	}, [setMap]);
+	}, [setMap, setContextMenu, setViewState]);
 
 	return <div className="h-full w-full" ref={mapContainerRef} />;
 };
