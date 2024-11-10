@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { api } from "@/lib/api";
+import { api } from "@/lib/api-client";
 import { useMutation } from "@tanstack/react-query";
 import { Input } from "./ui/input";
 

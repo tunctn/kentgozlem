@@ -1,6 +1,7 @@
-import type { ApiRequestContext } from "@/types/api-request";
 import type { NextRequest } from "next/server";
 import type { z } from "zod";
+
+import type { ApiRequestContext } from "./api-route";
 import { ApiError, withErrorHandler } from "./error-handler";
 
 export type ValidationSchemas = {
@@ -27,15 +28,15 @@ export const withValidation = <T extends ValidationSchemas>(
 		// Validate params if schema exists
 		if (schemas.params) {
 			const result = schemas.params.safeParse(context.params);
-			if (!result.success) throw new ApiError(400, "Invalid params");
+			if (!result.success) throw new ApiError(400, result.error);
 			validatedData.params = result.data;
 		}
 
 		// Validate query if schema exists
 		if (schemas.query) {
-			const searchParams = Object.fromEntries(new URL(req.url).searchParams);
+			const searchParams = Object.fromEntries(req.nextUrl?.searchParams ?? new URLSearchParams());
 			const result = schemas.query.safeParse(searchParams);
-			if (!result.success) throw new ApiError(400, "Invalid query parameters");
+			if (!result.success) throw new ApiError(400, result.error);
 			validatedData.query = result.data;
 		}
 
@@ -43,7 +44,7 @@ export const withValidation = <T extends ValidationSchemas>(
 		if (schemas.body) {
 			const body = await req.json().catch(() => ({}));
 			const result = schemas.body.safeParse(body);
-			if (!result.success) throw new ApiError(400, "Invalid request body");
+			if (!result.success) throw new ApiError(400, result.error);
 			validatedData.body = result.data;
 		}
 

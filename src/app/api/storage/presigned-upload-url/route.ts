@@ -1,11 +1,17 @@
-import { withAuth } from "@/lib/api";
 import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE, S3 } from "@/lib/s3";
+import { apiRoute } from "@/lib/server";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
-export const POST = withAuth(async (req) => {
+export const POST = apiRoute({
+	body: z.object({
+		mimeType: z.string(),
+		fileSize: z.number(),
+	}),
+}).loose(async (req) => {
 	const { mimeType, fileSize } = await req.json();
 
 	// Validate file type

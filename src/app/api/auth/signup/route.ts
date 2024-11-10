@@ -1,10 +1,12 @@
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { ApiError, withErrorHandler } from "@/lib/api";
+import { apiRoute } from "@/lib/server";
+import { ApiError } from "@/lib/server/error-handler";
+import { signupSchema } from "@/lib/zod";
 import { saltAndHashPassword } from "@/utils/password";
 import { NextResponse } from "next/server";
 
-export const POST = withErrorHandler(async (req) => {
+export const POST = apiRoute({ body: signupSchema }).loose(async (req) => {
 	const { email, password, name } = await req.json();
 
 	// Check if user already exists

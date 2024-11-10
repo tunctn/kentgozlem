@@ -1,12 +1,12 @@
-import type { ApiRequestContext } from "@/types/api-request";
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "../env";
+import type { ApiRequestContext } from "./api-route";
 
 export const withCors = (
 	handler: (req: NextRequest, context: ApiRequestContext) => Promise<unknown>,
 ) => {
 	return async (req: NextRequest, context: ApiRequestContext) => {
-		const origin = req.headers.get("origin");
+		const origin = req.headers?.get?.("origin") ?? null;
 
 		const allowedOrigins = env.ALLOWED_CORS_ORIGINS.split(",");
 		const corsOrigin = origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];

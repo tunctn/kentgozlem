@@ -3,9 +3,9 @@ import { z } from "zod";
 import type { LooseUserService } from "../types";
 
 export const getReportsQuerySchema = z.object({
-	lat: z.number(),
-	lng: z.number(),
-	zoom: z.number(),
+	lat: z.coerce.number(),
+	lng: z.coerce.number(),
+	zoom: z.coerce.number(),
 });
 export type GetReportsQuery = z.infer<typeof getReportsQuerySchema>;
 interface GetReportsParams extends LooseUserService, GetReportsQuery {}
@@ -42,6 +42,7 @@ export const getReports = async (params: GetReportsParams) => {
 	 * - Uses SQL MOD and FLOOR for grid cell assignment
 	 * - ROW_NUMBER() ensures even distribution across cells
 	 */
+	const oneDegree = 111320;
 
 	// Calculate radius based on zoom level (in meters)
 	const radius = Math.max(5000 / 2 ** zoom, 100);
@@ -60,22 +61,24 @@ export const getReports = async (params: GetReportsParams) => {
 		where: (reports, { and, eq, sql }) => {
 			const conditions = [
 				// Find reports within the radius using spherical distance calculation
-				sql`ST_Distance_Sphere(POINT(${lng}, ${lat}), POINT(reports.longitude, reports.latitude)) <= ${radius}`,
+				sql`ST_Distance(
+					geography(ST_MakePoint(${lng}, ${lat})), 
+					geography(ST_MakePoint(reports.longitude, reports.latitude))
+				) <= ${radius}`,
 
 				// Assign reports to grid cells based on latitude
 				// 1. Normalize coordinates relative to viewport center
 				// 2. Scale to grid size
 				// 3. Use modulo to select specific cells
-				sql`MOD(FLOOR((reports.latitude - ${lat} + ${radius / 111320}) / ${(radius * 2) / 111320 / gridSize}), ${gridSize}) = 
-					MOD(FLOOR(ROW_NUMBER() OVER (ORDER BY reports.created_at)), ${gridSize})`,
+				sql`MOD(FLOOR((reports.latitude - ${lat} + ${radius / oneDegree}) / ${(radius * 2) / oneDegree / gridSize}), ${gridSize}) = 
+					MOD(FLOOR(EXTRACT(EPOCH FROM reports.created_at) / 1000), ${gridSize})`,
 
 				// Same for longitude, but adjust for latitude distortion
 				// Longitude degrees get smaller as you move away from equator
-				sql`MOD(FLOOR((reports.longitude - ${lng} + ${radius / (111320 * Math.cos((lat * Math.PI) / 180))}) / ${(radius * 2) / (111320 * Math.cos((lat * Math.PI) / 180)) / gridSize}), ${gridSize}) = 
-					MOD(FLOOR(ROW_NUMBER() OVER (ORDER BY reports.created_at) / ${gridSize}), ${gridSize})`,
+				sql`MOD(FLOOR((reports.longitude - ${lng} + ${radius / (oneDegree * Math.cos((lat * Math.PI) / 180))}) / ${(radius * 2) / (oneDegree * Math.cos((lat * Math.PI) / 180)) / gridSize}), ${gridSize}) = 
+					MOD(FLOOR(EXTRACT(EPOCH FROM reports.created_at) / 1000 / ${gridSize}), ${gridSize})`,
 			];
 
-			// Only show verified reports to non-admin users
 			if (!willRequireAllReports) {
 				conditions.push(eq(reports.is_verified, true));
 			}
@@ -87,6 +90,7 @@ export const getReports = async (params: GetReportsParams) => {
 			category: true,
 		},
 		limit: reportsPerCell,
+		orderBy: (reports, { desc }) => [desc(reports.created_at)],
 	});
 
 	return reports;

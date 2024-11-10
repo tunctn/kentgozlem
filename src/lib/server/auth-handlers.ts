@@ -1,7 +1,7 @@
-import type { ApiRequest, ApiRequestContext } from "@/types/api-request";
 import type { NextRequest } from "next/server";
 import { auth } from "../auth";
 import type { AuthUser } from "../auth.config";
+import type { ApiRequest, ApiRequestContext } from "./api-route";
 import { ApiError, withErrorHandler } from "./error-handler";
 
 const getUserFromRequest = async (_req: NextRequest) => {
