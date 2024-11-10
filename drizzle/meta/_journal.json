@@ -22,6 +22,27 @@
       "when": 1731254287460,
       "tag": "0002_clumsy_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1731254609767,
+      "tag": "0003_tired_wilson_fisk",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1731254797968,
+      "tag": "0004_free_ogun",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1731269311992,
+      "tag": "0005_dapper_nitro",
+      "breakpoints": true
     }
   ]
 }

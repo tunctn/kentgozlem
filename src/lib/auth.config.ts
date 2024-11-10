@@ -1,9 +1,18 @@
 import { db } from "@/db";
+import type { UserRole } from "@/db/schema";
 import { verifyPassword } from "@/utils/password";
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { ZodError } from "zod";
 import { signInSchema } from "./zod";
+
+export type AuthUser = {
+	email: string;
+	id: string;
+	name: string;
+	image: string | null;
+	role: UserRole;
+};
 
 export default {
 	providers: [
@@ -32,7 +41,8 @@ export default {
 						email: dbuser.email,
 						id: dbuser.id,
 						name: dbuser.name,
-						image: dbuser.image,
+						image: dbuser.image ?? null,
+						role: dbuser.role,
 					};
 				} catch (error) {
 					if (error instanceof ZodError) {

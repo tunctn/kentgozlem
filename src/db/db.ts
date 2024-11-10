@@ -3,6 +3,8 @@ import { env } from "@/lib/env";
 import { drizzle as pgDrizzle } from "drizzle-orm/node-postgres";
 import { Pool as PGPool } from "pg";
 
+import "./types";
+
 import * as schema from "./schema";
 
 const pgPool = new PGPool({

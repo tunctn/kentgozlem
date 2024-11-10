@@ -1,10 +1,12 @@
+import { REPORT_STATUS } from "@/db/types/report-status";
+import { relations } from "drizzle-orm";
 import { boolean, decimal, index, pgEnum, pgTable, text, varchar } from "drizzle-orm/pg-core";
 import { baseModelWithUser } from "../abstract";
 import { categories } from "../categories/categories";
+import { reportAudits } from "./report-audits";
+import { reportImages } from "./report-images";
 
-export const REPORT_STATUS = ["pending", "investigating", "rejected", "resolved"] as const;
-export type ReportStatus = (typeof REPORT_STATUS)[number];
-export const reportStatusEnum = pgEnum("report_status", REPORT_STATUS);
+export const reportStatusEnum = pgEnum("report_status_enum", REPORT_STATUS);
 
 export const reports = pgTable(
 	"reports",
@@ -14,23 +16,32 @@ export const reports = pgTable(
 		latitude: decimal("latitude", { precision: 10, scale: 7 }).notNull(),
 		longitude: decimal("longitude", { precision: 10, scale: 7 }).notNull(),
 
-		categoryId: text("category_id")
+		category_id: text("category_id")
 			.references(() => categories.id)
 			.notNull(),
 
 		address: varchar("address", { length: 255 }).notNull(),
 		description: text("description"),
 
-		isVerified: boolean("is_verified").notNull().default(false),
+		is_verified: boolean("is_verified").notNull().default(false),
 		status: reportStatusEnum("status").notNull().default("pending"),
 	},
 	(table) => ({
 		locationIdx: index("reports_location_idx").on(table.latitude, table.longitude),
-		categoryIdx: index("reports_category_id_idx").on(table.categoryId),
+		categoryIdx: index("reports_category_id_idx").on(table.category_id),
 		statusIdx: index("reports_status_idx").on(table.status),
-		verifiedIdx: index("reports_is_verified_idx").on(table.isVerified),
+		verifiedIdx: index("reports_is_verified_idx").on(table.is_verified),
 	}),
 );
+
+export const reportsRelations = relations(reports, ({ one, many }) => ({
+	category: one(categories, {
+		fields: [reports.category_id],
+		references: [categories.id],
+	}),
+	images: many(reportImages),
+	audits: many(reportAudits),
+}));
 
 export type Report = typeof reports.$inferSelect;
 export type NewReport = typeof reports.$inferInsert;
