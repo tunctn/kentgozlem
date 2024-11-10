@@ -5,15 +5,17 @@ import { ApiError } from "@/lib/server/error-handler";
 import { z } from "zod";
 import type { UserService } from "../types";
 
-export const createReportSchema = z.object({
-	latitude: z.number(),
-	longitude: z.number(),
-	address: z.string(),
-	category_id: z.string(),
-	description: z.string().optional(),
-	status: z.enum(REPORT_STATUS),
-	is_verified: z.boolean(),
-});
+export const createReportSchema = z
+	.object({
+		lat: z.number(),
+		lng: z.number(),
+		address: z.string(),
+		category_id: z.string(),
+		description: z.string().optional(),
+		status: z.enum(REPORT_STATUS).optional(),
+		is_verified: z.boolean().optional(),
+	})
+	.strict();
 export type CreateReportPayload = z.infer<typeof createReportSchema>;
 export type CreateReportResponse = Awaited<ReturnType<typeof createReport>>;
 
@@ -30,14 +32,10 @@ export const createReport = async (params: CreateReportParams) => {
 	}
 
 	const createdReport = await insertOne(db, reports, {
+		...report,
+		latitude: report.lat.toString(),
+		longitude: report.lng.toString(),
 		created_by_id: user.id,
-		latitude: report.latitude.toString(),
-		longitude: report.longitude.toString(),
-		address: report.address,
-		category_id: report.category_id,
-		description: report.description,
-		is_verified: report.is_verified,
-		status: report.status,
 	});
 
 	return createdReport;

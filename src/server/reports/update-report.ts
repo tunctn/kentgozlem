@@ -1,21 +1,23 @@
 import { REPORT_STATUS, db } from "@/db";
 import { updateOne } from "@/db/operations";
 import { reports } from "@/db/schema";
+import { ApiError } from "@/lib/server/error-handler";
 import { eq } from "drizzle-orm";
-import { ApiError } from "next/dist/server/api-utils";
 import { z } from "zod";
 import type { UserService } from "../types";
 
-export const updateReportSchema = z.object({
-	id: z.string(),
-	latitude: z.number().optional(),
-	longitude: z.number().optional(),
-	address: z.string().optional(),
-	category_id: z.string().optional(),
-	description: z.string().optional(),
-	status: z.enum(REPORT_STATUS).optional(),
-	is_verified: z.boolean().optional(),
-});
+export const updateReportSchema = z
+	.object({
+		id: z.string(),
+		lat: z.number().optional(),
+		lng: z.number().optional(),
+		address: z.string().optional(),
+		category_id: z.string().optional(),
+		description: z.string().optional(),
+		status: z.enum(REPORT_STATUS).optional(),
+		is_verified: z.boolean().optional(),
+	})
+	.strict();
 export type UpdateReportPayload = z.infer<typeof updateReportSchema>;
 export type UpdateReportResponse = Awaited<ReturnType<typeof updateReport>>;
 
@@ -41,13 +43,11 @@ export const updateReport = async (params: UpdateReportParams) => {
 	}
 
 	const updatedReport = await updateOne(db, reports, eq(reports.id, report.id), {
-		...(report.latitude && { latitude: report.latitude.toString() }),
-		...(report.longitude && { longitude: report.longitude.toString() }),
-		...(report.address && { address: report.address }),
-		...(report.category_id && { category_id: report.category_id }),
-		...(report.description && { description: report.description }),
-		...(report.is_verified !== undefined && { is_verified: report.is_verified }),
-		...(report.status && { status: report.status }),
+		...report,
+		latitude: report.lat ? report.lat.toString() : undefined,
+		longitude: report.lng ? report.lng.toString() : undefined,
+		updated_by_id: user.id,
+		updated_at: new Date(),
 	});
 
 	return updatedReport;

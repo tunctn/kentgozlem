@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import { removeOne } from "@/db/operations";
 import { reports } from "@/db/schema";
+import { ApiError } from "@/lib/server/error-handler";
 import { eq } from "drizzle-orm";
-import { ApiError } from "next/dist/server/api-utils";
 import { z } from "zod";
 import type { UserService } from "../types";
 
@@ -27,5 +27,7 @@ export const deleteReport = async (params: DeleteReportParams) => {
 	if (!isOwner && user.role !== "admin") throw new ApiError(403, "Forbidden");
 
 	const deletedReport = await removeOne(db, reports, eq(reports.id, payload.id));
+	if (!deletedReport) throw new ApiError(404, "Report not found");
+
 	return deletedReport;
 };

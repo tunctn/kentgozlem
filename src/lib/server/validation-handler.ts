@@ -27,7 +27,8 @@ export const withValidation = <T extends ValidationSchemas>(
 
 		// Validate params if schema exists
 		if (schemas.params) {
-			const result = schemas.params.safeParse(context.params);
+			const params = await Promise.resolve(context.params);
+			const result = schemas.params.safeParse(params);
 			if (!result.success) throw new ApiError(400, result.error);
 			validatedData.params = result.data;
 		}

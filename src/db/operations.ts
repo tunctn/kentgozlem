@@ -23,22 +23,26 @@ export const upsertOne = async <T extends PgTable>(
 	payload: T["$inferInsert"],
 	conflictTarget: IndexColumn[],
 ): Promise<T["$inferSelect"]> => {
-	const upsertedRows = await tx
-		.insert(table)
-		.values(payload)
-		.onConflictDoUpdate({
-			target: conflictTarget,
-			set: payload,
-		})
-		.returning();
+	try {
+		const upsertedRows = await tx
+			.insert(table)
+			.values(payload)
+			.onConflictDoUpdate({
+				target: conflictTarget,
+				set: payload,
+			})
+			.returning();
 
-	const upsertedRow = upsertedRows[0];
+		const upsertedRow = upsertedRows[0];
 
-	if (!upsertedRow) {
+		if (!upsertedRow) {
+			throw new Error(`Failed to upsert row into ${table._.name}`);
+		}
+
+		return upsertedRow;
+	} catch (error) {
 		throw new Error(`Failed to upsert row into ${table._.name}`);
 	}
-
-	return upsertedRow;
 };
 
 export const updateOne = async <T extends PgTable>(
@@ -47,14 +51,13 @@ export const updateOne = async <T extends PgTable>(
 	where: SQL<unknown>,
 	payload: Partial<T["$inferInsert"]>,
 ): Promise<T["$inferSelect"]> => {
-	const updatedRows = await tx.update(table).set(payload).where(where).returning();
-	const updatedRow = updatedRows[0];
-
-	if (!updatedRow) {
+	try {
+		const updatedRows = await tx.update(table).set(payload).where(where).returning();
+		const updatedRow = updatedRows[0];
+		return updatedRow;
+	} catch (error) {
 		throw new Error(`Failed to update row in ${table._.name}`);
 	}
-
-	return updatedRow;
 };
 
 export const removeOne = async <T extends PgTable>(
@@ -62,12 +65,12 @@ export const removeOne = async <T extends PgTable>(
 	table: T,
 	where: SQL<unknown>,
 ): Promise<T["$inferSelect"]> => {
-	const deletedRows = await tx.delete(table).where(where).returning();
-	const deletedRow = deletedRows[0];
+	try {
+		const deletedRows = await tx.delete(table).where(where).returning();
+		const deletedRow = deletedRows[0];
 
-	if (!deletedRow) {
+		return deletedRow;
+	} catch (error) {
 		throw new Error(`Failed to delete row from ${table._.name}`);
 	}
-
-	return deletedRow;
 };

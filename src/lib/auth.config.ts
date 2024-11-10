@@ -37,6 +37,7 @@ export default {
 					if (!isPasswordValid) return null;
 
 					// return JSON object with the user data
+
 					return {
 						email: dbuser.email,
 						id: dbuser.id,
@@ -55,4 +56,13 @@ export default {
 			},
 		}),
 	],
+	callbacks: {
+		session: ({ session, token }) => ({
+			...session,
+			user: {
+				...session.user,
+				id: token.sub,
+			},
+		}),
+	},
 } satisfies NextAuthConfig;

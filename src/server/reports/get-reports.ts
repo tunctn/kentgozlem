@@ -2,11 +2,13 @@ import { db } from "@/db";
 import { z } from "zod";
 import type { LooseUserService } from "../types";
 
-export const getReportsQuerySchema = z.object({
-	lat: z.coerce.number(),
-	lng: z.coerce.number(),
-	zoom: z.coerce.number(),
-});
+export const getReportsQuerySchema = z
+	.object({
+		lat: z.coerce.number(),
+		lng: z.coerce.number(),
+		zoom: z.coerce.number(),
+	})
+	.strict();
 export type GetReportsQuery = z.infer<typeof getReportsQuerySchema>;
 interface GetReportsParams extends LooseUserService, GetReportsQuery {}
 
@@ -45,7 +47,7 @@ export const getReports = async (params: GetReportsParams) => {
 	const oneDegree = 111320;
 
 	// Calculate radius based on zoom level (in meters)
-	const radius = Math.max(5000 / 2 ** zoom, 100);
+	const radius = Math.max(5000 / 2 ** zoom, 2500);
 
 	// Determine grid size based on zoom level
 	let gridSize = 2; // Default: Neighborhood view
@@ -56,6 +58,17 @@ export const getReports = async (params: GetReportsParams) => {
 	// Calculate how many reports to show per grid cell
 	const totalLimit = zoom <= 10 ? 50 : zoom <= 13 ? 100 : zoom <= 15 ? 200 : 500;
 	const reportsPerCell = Math.ceil(totalLimit / (gridSize * gridSize));
+
+	// // Add debug logging
+	// 	const distance = await db.execute(sql`
+	// 		SELECT ST_Distance(
+	// 				geography(ST_MakePoint(${lng}, ${lat})),
+	// 				geography(ST_MakePoint(16.3508316, 48.221395))
+	// 		) as distance
+	// `);
+
+	// 	console.log("Distance to report:", distance, "meters");
+	// 	console.log("Current radius:", radius, "meters");
 
 	const reports = await db.query.reports.findMany({
 		where: (reports, { and, eq, sql }) => {
