@@ -11,16 +11,14 @@ export const baseIdModel = {
 
 export const baseModel = {
 	...baseIdModel,
-	created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-	updated_at: timestamp("updated_at", { withTimezone: true }),
-	deleted_at: timestamp("deleted_at", { withTimezone: true }),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }),
 };
 
 export const baseModelWithUser = {
 	...baseModel,
-	created_by_id: text("created_by_id")
+	createdById: text("created_by_id")
 		.notNull()
 		.references(() => users.id),
-	updated_by_id: text("updated_by_id").references(() => users.id),
-	deleted_by_id: text("deleted_by_id").references(() => users.id),
+	updatedById: text("updated_by_id").references(() => users.id),
 };

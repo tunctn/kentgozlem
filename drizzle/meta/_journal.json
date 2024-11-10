@@ -15,6 +15,13 @@
       "when": 1730661689602,
       "tag": "0001_pretty_namor",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1731254287460,
+      "tag": "0002_clumsy_chat",
+      "breakpoints": true
     }
   ]
 }
