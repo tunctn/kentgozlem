@@ -36,6 +36,7 @@
 		"ky": "^1.7.2",
 		"lucide-react": "^0.456.0",
 		"mapbox-gl": "^3.7.0",
+		"nanoid": "^5.0.8",
 		"next": "15.0.3",
 		"next-auth": "5.0.0-beta.25",
 		"oslo": "^1.2.1",
