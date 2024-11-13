@@ -1,3 +1,4 @@
+import type { NextRequest } from "next/server";
 import type { AuthUser } from "../auth.config";
 import { withAuth, withLooseAuth } from "./auth-handlers";
 import type { ApiHandler, Middleware } from "./types";
@@ -46,7 +47,7 @@ class ApiRoute<T extends ValidationSchemas> {
 			};
 		}
 
-		return finalHandler;
+		return finalHandler as unknown as (req: NextRequest) => Promise<void>;
 	}
 
 	protected route(fn: (req: ValidatedRequest<T>, context: ApiRequestContext) => Promise<unknown>) {
