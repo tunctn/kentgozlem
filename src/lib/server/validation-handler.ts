@@ -1,7 +1,6 @@
-import type { NextRequest } from "next/server";
+import type { NextApiRequest } from "next";
 import type { z } from "zod";
 
-import type { ApiRequestContext } from "./api-route";
 import { ApiError, withErrorHandler } from "./error-handler";
 
 export type ValidationSchemas = {
@@ -12,7 +11,7 @@ export type ValidationSchemas = {
 
 type InferSchemaType<T> = T extends z.ZodType ? z.infer<T> : never;
 
-export type ValidatedRequest<T extends ValidationSchemas> = NextRequest & {
+export type ValidatedRequest<T extends ValidationSchemas> = NextApiRequest & {
 	params: T["params"] extends z.ZodType ? InferSchemaType<T["params"]> : never;
 	query: T["query"] extends z.ZodType ? InferSchemaType<T["query"]> : never;
 	body: T["body"] extends z.ZodType ? InferSchemaType<T["body"]> : never;
@@ -20,22 +19,22 @@ export type ValidatedRequest<T extends ValidationSchemas> = NextRequest & {
 
 export const withValidation = <T extends ValidationSchemas>(
 	schemas: T,
-	fn: (req: ValidatedRequest<T>, context: ApiRequestContext) => Promise<unknown>,
+	fn: (req: ValidatedRequest<T>) => Promise<unknown>,
 ) => {
-	return withErrorHandler(async (req: NextRequest, context: ApiRequestContext) => {
+	return withErrorHandler(async (req: NextApiRequest) => {
 		const validatedData: Record<string, unknown> = {};
 
 		// Validate params if schema exists
 		if (schemas.params) {
-			const params = await Promise.resolve(context.params);
-			const result = schemas.params.safeParse(params);
+			const result = schemas.params.safeParse(req.query);
 			if (!result.success) throw new ApiError(400, result.error);
 			validatedData.params = result.data;
 		}
 
 		// Validate query if schema exists
 		if (schemas.query) {
-			const searchParams = Object.fromEntries(req.nextUrl?.searchParams ?? new URLSearchParams());
+			const url = new URL(req.url ?? "");
+			const searchParams = Object.fromEntries(url.searchParams);
 			const result = schemas.query.safeParse(searchParams);
 			if (!result.success) throw new ApiError(400, result.error);
 			validatedData.query = result.data;
@@ -43,18 +42,15 @@ export const withValidation = <T extends ValidationSchemas>(
 
 		// Validate body if schema exists
 		if (schemas.body) {
-			const body = await req.json().catch(() => ({}));
+			const body = await req.body();
 			const result = schemas.body.safeParse(body);
 			if (!result.success) throw new ApiError(400, result.error);
 			validatedData.body = result.data;
 		}
 
-		return fn(
-			{
-				...req,
-				...validatedData,
-			} as ValidatedRequest<T>,
-			context,
-		);
+		return fn({
+			...req,
+			...validatedData,
+		} as ValidatedRequest<T>);
 	});
 };

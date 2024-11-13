@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server";
+import type { NextApiRequest } from "next";
+import { NextResponse } from "next/server";
 import type { ZodError } from "zod";
-import type { ApiRequestContext } from "./api-route";
 import { withCors } from "./cors-handler";
 
 export class ApiError extends Error {
@@ -11,12 +11,10 @@ export class ApiError extends Error {
 	}
 }
 
-export const withErrorHandler = <T>(
-	fn: (req: NextRequest, context: ApiRequestContext) => Promise<T>,
-) => {
-	return withCors(async (req: NextRequest, context: ApiRequestContext) => {
+export const withErrorHandler = <T>(fn: (req: NextApiRequest) => Promise<T>) => {
+	return withCors(async (req: NextApiRequest) => {
 		try {
-			return await fn(req, context);
+			return await fn(req);
 		} catch (error) {
 			if (error instanceof ApiError) {
 				try {

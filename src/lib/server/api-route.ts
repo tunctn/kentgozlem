@@ -1,3 +1,4 @@
+import type { NextRequest } from "next/server";
 import type { AuthUser } from "../auth.config";
 import { withAuth, withLooseAuth } from "./auth-handlers";
 import type { ApiHandler, Middleware } from "./types";
@@ -24,7 +25,7 @@ class ApiRoute<T extends ValidationSchemas> {
 	}
 
 	protected createRoute<R extends ValidatedRequest<T>>(
-		handler: (req: R, context: ApiRequestContext) => Promise<unknown>,
+		handler: (req: R) => Promise<unknown>,
 		authWrapper?: Middleware,
 	) {
 		// Start with the original handler
@@ -41,27 +42,27 @@ class ApiRoute<T extends ValidationSchemas> {
 		// Finally apply other middlewares in reverse order
 		for (const middleware of [...this.middlewares].reverse()) {
 			const previousHandler = finalHandler;
-			finalHandler = async (req, context) => {
-				return await middleware(previousHandler)(req as never, context);
+			finalHandler = async (req) => {
+				return await middleware(previousHandler)(req as never);
 			};
 		}
 
-		return finalHandler;
+		return finalHandler as unknown as (req: NextRequest) => Promise<unknown>;
 	}
 
-	protected route(fn: (req: ValidatedRequest<T>, context: ApiRequestContext) => Promise<unknown>) {
+	protected route(fn: (req: ValidatedRequest<T>) => Promise<unknown>) {
 		return this.createRoute(fn);
 	}
 
-	public protected(fn: (req: ProtectedRequest<T>, context: ApiRequestContext) => Promise<unknown>) {
+	public protected(fn: (req: ProtectedRequest<T>) => Promise<unknown>) {
 		return this.createRoute(fn, withAuth);
 	}
 
-	public loose(fn: (req: LooseRequest<T>, context: ApiRequestContext) => Promise<unknown>) {
+	public loose(fn: (req: LooseRequest<T>) => Promise<unknown>) {
 		return this.createRoute(fn, withLooseAuth);
 	}
 
-	public public(fn: (req: ValidatedRequest<T>, context: ApiRequestContext) => Promise<unknown>) {
+	public public(fn: (req: ValidatedRequest<T>) => Promise<unknown>) {
 		return this.createRoute(fn);
 	}
 }

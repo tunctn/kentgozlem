@@ -7,7 +7,7 @@ import { saltAndHashPassword } from "@/utils/password";
 import { NextResponse } from "next/server";
 
 export const POST = apiRoute({ body: signupSchema }).loose(async (req) => {
-	const { email, password, name } = await req.json();
+	const { email, password, name } = req.body;
 
 	// Check if user already exists
 	const existingUser = await db.query.users.findFirst({
