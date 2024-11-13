@@ -16,8 +16,6 @@ export const CurrentLocationMarker = forwardRef<
 	const [transitioning, setTransitioning] = useState(false);
 	const isAtTransitionPoint = scaleFactor > 1.5 && scaleFactor < 2.5;
 
-	console.log({ isAtTransitionPoint });
-
 	const size = (() => {
 		const baseSize = 24 * scaleFactor;
 		if (tooClose) return baseSize > 24 ? baseSize : 24;
