@@ -15,5 +15,5 @@ export default function MapLayout({ children }: { children: React.ReactNode }) {
 		}
 	}, [isDraggingCompass]);
 
-	return <div className="h-full w-full">{children}</div>;
+	return <div className="h-full w-full relative">{children}</div>;
 }

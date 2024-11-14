@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 import { useMapStore } from "./components/map-store";
-import Footer from "./footer";
 import "./globals.css";
 import { Providers } from "./providers";
 
@@ -32,7 +31,6 @@ export default function RootLayout({
 					<link rel="manifest" href="/site.webmanifest" />
 					<Providers>{children}</Providers>
 					<Toaster />
-					<Footer />
 				</ThemeProvider>
 			</body>
 		</html>

@@ -75,7 +75,7 @@ export const Compass = ({ degree }: CompassProps) => {
 			const angleDiff = currentAngle - startAngle;
 
 			// Apply the difference to the initial bearing
-			map.jumpTo({ bearing: initialBearing.current - angleDiff });
+			map?.jumpTo({ bearing: initialBearing.current - angleDiff });
 		};
 
 		// Handle drag with animation frame optimization

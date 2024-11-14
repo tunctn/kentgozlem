@@ -28,8 +28,8 @@ interface SetViewStateArgs {
 type LightPreset = "day" | "night" | "dusk" | "dawn";
 
 interface MapStore {
-	map: mapboxgl.Map;
-	setMap: (map: mapboxgl.Map) => void;
+	map: mapboxgl.Map | null;
+	setMap: (map: mapboxgl.Map | null) => void;
 
 	loaded: boolean;
 	setLoaded: (loaded: boolean) => void;
@@ -52,8 +52,8 @@ interface MapStore {
 }
 
 export const useMapStore = create<MapStore>((set, get) => ({
-	map: {} as mapboxgl.Map,
-	setMap: (map: mapboxgl.Map) => set({ map }),
+	map: null,
+	setMap: (map: mapboxgl.Map | null) => set({ map }),
 
 	loaded: false,
 	setLoaded: (loaded: boolean) => set({ loaded }),
@@ -97,7 +97,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
 		} else {
 			lightPreset = "night";
 		}
-		return lightPreset;
+		return lightPreset as LightPreset;
 	})(),
 
 	locateUser: () => {
@@ -117,7 +117,11 @@ export const useMapStore = create<MapStore>((set, get) => ({
 			saveToLocalStorage("last-user-coords", userCoords);
 			set({ userCoords: { lat: userCoords[1], lng: userCoords[0] } });
 			get().setViewState({ viewState: mapViewState, saveCookie: true });
-			get().map.easeTo(mapViewState);
+
+			const map = get().map;
+			if (!map) return;
+
+			map.easeTo(mapViewState);
 		});
 	},
 }));

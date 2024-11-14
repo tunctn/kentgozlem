@@ -6,16 +6,25 @@ import type { ComponentPropsWithRef } from "react";
 
 const font = Manrope({ subsets: ["latin"] });
 
-interface LogoOnMapProps extends ComponentPropsWithRef<"a"> {}
+interface LogoProps extends ComponentPropsWithRef<"a"> {
+	forcedTheme?: "light" | "dark";
+}
 
-export default function LogoOnMap({ className, ...props }: LogoOnMapProps) {
+export default function Logo({ className, forcedTheme, ...props }: LogoProps) {
 	const lightPreset = useMapStore.getState().lightPreset;
-	const isLight = lightPreset === "day" || lightPreset === "dawn";
+	const isLightPreset = lightPreset === "day" || lightPreset === "dawn";
+	const isForcedLight = forcedTheme === "light";
+	const isForcedDark = forcedTheme === "dark";
+
+	const isLight = isForcedLight || (isLightPreset && !isForcedDark);
 
 	return (
 		<a
 			href="/"
-			className={cn("z-10 mb-8 flex items-center gap-2 absolute left-0 top-0", className)}
+			className={cn(
+				"z-10 flex items-center gap-2 scale-[85%] md:scale-100 origin-top-left",
+				className,
+			)}
 			{...props}
 		>
 			<Image

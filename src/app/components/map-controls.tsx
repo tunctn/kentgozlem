@@ -43,7 +43,7 @@ export const MapControls = () => {
 					variant="glass"
 					grouped={true}
 					size="sm-icon"
-					onClick={() => map.easeTo({ zoom: map.getZoom() + 1 })}
+					onClick={() => map?.easeTo({ zoom: map.getZoom() + 1 })}
 				>
 					<Plus size={16} />
 				</Button>
@@ -51,7 +51,7 @@ export const MapControls = () => {
 					variant="glass"
 					grouped={true}
 					size="sm-icon"
-					onClick={() => map.easeTo({ zoom: map.getZoom() - 1 })}
+					onClick={() => map?.easeTo({ zoom: map.getZoom() - 1 })}
 				>
 					<Minus size={16} />
 				</Button>

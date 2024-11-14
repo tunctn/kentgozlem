@@ -149,6 +149,12 @@ export const Mapbox = ({
 
 			setLoaded(true);
 		});
+
+		// Cleanup
+		return () => {
+			setMap(null);
+			map.remove();
+		};
 	}, [
 		setMap,
 		setContextMenu,
