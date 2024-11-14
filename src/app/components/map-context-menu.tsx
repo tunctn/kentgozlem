@@ -4,10 +4,12 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Portal } from "@radix-ui/react-portal";
-import { MapPinned } from "lucide-react";
+import { Flag, MapIcon, MapPinned, SquareArrowOutUpRight } from "lucide-react";
 import { useRef } from "react";
 import { useMapStore } from "./map-store";
 
@@ -38,13 +40,27 @@ export default function MapContextMenu() {
 					alignOffset={0}
 					onContextMenu={(e) => e.preventDefault()}
 				>
-					<DropdownMenuItem>
+					<DropdownMenuLabel className="flex items-center gap-2">
 						<MapPinned size={16} />
 						{contextMenu.mapCoords.lat}, {contextMenu.mapCoords.lng}
+					</DropdownMenuLabel>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem>
+						<Flag size={16} />
+						Bildir
 					</DropdownMenuItem>
-					<DropdownMenuItem>Billing</DropdownMenuItem>
-					<DropdownMenuItem>Team</DropdownMenuItem>
-					<DropdownMenuItem>Subscription</DropdownMenuItem>
+					<DropdownMenuItem
+						onClick={() => {
+							window.open(
+								`https://www.google.com/maps/search/?api=1&query=${contextMenu.mapCoords.lat},${contextMenu.mapCoords.lng}`,
+								"_blank",
+							);
+						}}
+					>
+						<MapIcon size={16} />
+						Google Haritalar'da Aç
+						<SquareArrowOutUpRight size={16} className="ml-5" />
+					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</Portal>

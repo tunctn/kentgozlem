@@ -6,6 +6,7 @@ import { env } from "@/lib/env";
 import mapboxgl from "mapbox-gl";
 import { useEffect, useRef } from "react";
 
+import { cn } from "@/lib/utils";
 import { type MapViewState, type UserCoords, getFromLocalStorage } from "@/utils/local-storage";
 import { defaultViewState, useMapStore } from "./map-store";
 
@@ -13,12 +14,34 @@ const refineMapCoord = (coord: number) => {
 	return Math.round(coord * 1000000) / 1000000;
 };
 
-export const Mapbox = () => {
+const AUTH_MAP_VIEW_STATE: MapViewState = {
+	center: [28.990128549187148, 41.04179842144478],
+	zoom: 13.867394781592099,
+	pitch: 72.9473972141095,
+	bearing: 0,
+};
+
+interface MapboxProps {
+	authMap?: boolean;
+	staticState?: MapViewState;
+	disableInteractions?: boolean;
+}
+
+export const Mapbox = ({
+	authMap,
+	staticState: staticStateProp,
+	disableInteractions,
+}: MapboxProps) => {
 	const mapContainerRef = useRef<HTMLDivElement>(null);
-	const { setMap, setContextMenu, setViewState } = useMapStore();
+	const { setMap, setContextMenu, lightPreset, setViewState, setLoaded } = useMapStore();
 
 	useEffect(() => {
 		if (!mapContainerRef.current) return;
+		let staticState = staticStateProp;
+		if (authMap) {
+			staticState = AUTH_MAP_VIEW_STATE;
+			disableInteractions = true;
+		}
 
 		const localViewState = getFromLocalStorage("map-view-state") as MapViewState | null;
 		const lastUserCoords = getFromLocalStorage("last-user-coords") as UserCoords | null;
@@ -35,6 +58,8 @@ export const Mapbox = () => {
 			viewState = localViewState;
 		}
 
+		if (staticState) viewState = staticState;
+
 		const map = new mapboxgl.Map({
 			container: mapContainerRef.current,
 			accessToken: env.NEXT_PUBLIC_MAPBOX_API_KEY,
@@ -42,10 +67,37 @@ export const Mapbox = () => {
 			projection: "globe",
 			language: "tr",
 			...viewState,
+
+			dragPan: !disableInteractions,
+			dragRotate: !disableInteractions,
+			scrollZoom: !disableInteractions,
+			touchPitch: !disableInteractions,
+			touchZoomRotate: !disableInteractions,
+			doubleClickZoom: !disableInteractions,
+			keyboard: !disableInteractions,
+
+			config: {
+				basemap: {
+					lightPreset: lightPreset,
+				},
+			},
 		});
 		setMap(map);
 
+		if (authMap) {
+			const rotateCamera = () => {
+				map.easeTo({
+					bearing: map.getBearing() + 0.005,
+					duration: 0,
+					easing: (t) => t,
+				});
+				requestAnimationFrame(rotateCamera);
+			};
+			rotateCamera();
+		}
+
 		map.on("contextmenu", (e) => {
+			if (staticState) return;
 			e.preventDefault();
 
 			map.stop();
@@ -66,6 +118,8 @@ export const Mapbox = () => {
 		// Save view state when map moves
 		map.on("moveend", () => {
 			if (!map) return;
+			if (authMap) return;
+			if (staticState) return;
 
 			const viewState: MapViewState = {
 				center: map.getCenter().toArray(),
@@ -78,6 +132,8 @@ export const Mapbox = () => {
 
 		map.on("move", () => {
 			if (!map) return;
+			if (authMap) return;
+			if (staticState) return;
 
 			const viewState: MapViewState = {
 				center: map.getCenter().toArray(),
@@ -91,27 +147,20 @@ export const Mapbox = () => {
 		map.on("style.load", () => {
 			if (!map) return;
 
-			const availableLightPresets = ["dusk", "night", "dawn", "day"] as const;
-
-			// Get current time and create Date object
-			const now = new Date();
-			const hours = now.getHours();
-
-			// Simple time-based light preset selection
-			let lightPreset: (typeof availableLightPresets)[number];
-			if (hours >= 5 && hours < 7) {
-				lightPreset = "dawn";
-			} else if (hours >= 7 && hours < 17) {
-				lightPreset = "day";
-			} else if (hours >= 17 && hours < 19) {
-				lightPreset = "dusk";
-			} else {
-				lightPreset = "night";
-			}
-
-			map.setConfigProperty("basemap", "lightPreset", lightPreset);
+			setLoaded(true);
 		});
-	}, [setMap, setContextMenu, setViewState]);
+	}, [
+		setMap,
+		setContextMenu,
+		setViewState,
+		staticStateProp,
+		authMap,
+		disableInteractions,
+		setLoaded,
+		lightPreset,
+	]);
 
-	return <div className="h-full w-full" ref={mapContainerRef} />;
+	return (
+		<div className={cn("h-full w-full", authMap && "pointer-events-none")} ref={mapContainerRef} />
+	);
 };

@@ -15,6 +15,9 @@ const nextauth = NextAuth({
 		strategy: "jwt",
 	},
 	...authConfig,
+	pages: {
+		signIn: "/auth/sign-in",
+	},
 });
 
 export const { handlers, signIn, signOut, auth } = nextauth;

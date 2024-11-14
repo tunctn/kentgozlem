@@ -123,7 +123,7 @@ export const Compass = ({ degree }: CompassProps) => {
 			ref={compassRef}
 			type="button"
 			onClick={onClick}
-			className="relative rounded-full bg-foreground/[73%] backdrop-blur-lg text-background w-[50px] h-[50px]"
+			className="relative rounded-full bg-background/[73%] backdrop-blur-lg w-[50px] h-[50px]"
 		>
 			<svg
 				width="100%"
@@ -184,7 +184,7 @@ const CompassDirection = ({
 	return (
 		<div
 			className={cn(
-				"absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 text-[18px] font-semibold text-background/80 opacity-0 transition-opacity duration-200 select-none",
+				"absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 text-[18px] font-semibold opacity-0 transition-opacity duration-200 select-none",
 				{
 					"opacity-100": direction === currentDirection,
 				},

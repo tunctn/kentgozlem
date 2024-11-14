@@ -1,0 +1,1 @@
+ALTER TABLE "accounts" ALTER COLUMN "id_token" SET DATA TYPE text;

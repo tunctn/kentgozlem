@@ -9,7 +9,7 @@ export const users = pgTable("users", {
 	...baseModel,
 	email: varchar("email", { length: 255 }).notNull().unique(),
 	emailVerified: timestamp("email_verified", { withTimezone: true }),
-	passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+	passwordHash: varchar("password_hash", { length: 255 }),
 	image: varchar("image"),
 	name: varchar("name", { length: 255 }).notNull(),
 	role: userRolesEnum("role").default("user"),
@@ -17,4 +17,5 @@ export const users = pgTable("users", {
 
 // TypeScript type for the user
 export type User = typeof users.$inferSelect;
+export type AuthUser = Omit<User, "passwordHash">;
 export type NewUser = typeof users.$inferInsert;
