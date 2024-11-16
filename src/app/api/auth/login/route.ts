@@ -55,6 +55,7 @@ export const POST = apiRoute({ body: signInSchema }).loose(async (req) => {
 		name: dbuser.name,
 		email: dbuser.emailAddress,
 		role: dbuser.role,
+		image: dbuser.avatarUrl,
 	};
 	return NextResponse.json({ user: response }, { status: 201 });
 });

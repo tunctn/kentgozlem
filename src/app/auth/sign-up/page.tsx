@@ -1,18 +1,11 @@
+"use client";
 import { Separator } from "@/components/ui/separator";
-import { cookies } from "next/headers";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { GoogleIcon } from "../google-icon";
 import { ProviderAuthButton } from "../provider-auth-button";
 import { EmailSignUpForm } from "./email-sign-up-form";
 
-export default async function SignUpPage() {
-	const cookieStore = await cookies();
-	const redirectCookie = cookieStore.get("redirect")?.value;
-	if (redirectCookie) {
-		redirect(redirectCookie);
-	}
-
+export default function SignUpPage() {
 	return (
 		<div>
 			<h2 className="text-2xl font-bold text-center">Kayıt Ol</h2>

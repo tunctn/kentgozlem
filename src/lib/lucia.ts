@@ -39,6 +39,7 @@ export const lucia = new Lucia(adapter, {
 			name: attributes.name,
 			email: attributes.emailAddress,
 			role: attributes.role,
+			image: attributes.avatarUrl,
 		} satisfies AuthUser;
 	},
 });

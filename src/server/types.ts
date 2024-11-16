@@ -1,5 +1,5 @@
 import type { db } from "@/db";
-import type { AuthUser } from "@/lib/auth.config";
+import type { AuthUser } from "@/db/schema";
 
 export type Service = {
 	tx?: typeof db;

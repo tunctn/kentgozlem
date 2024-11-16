@@ -9,8 +9,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOut } from "@/lib/auth";
-import { cookies } from "next/headers";
+import Link from "next/link";
 
 export function ProfileButton({ user }: { user: AuthUser }) {
 	return (
@@ -24,18 +23,10 @@ export function ProfileButton({ user }: { user: AuthUser }) {
 			<DropdownMenuContent align="end">
 				<DropdownMenuLabel>{user.name}</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				<form
-					action={async (formData) => {
-						"use server";
-						const cookieStore = await cookies();
-						cookieStore.delete("redirect");
-						await signOut();
-					}}
-				>
-					<DropdownMenuItem>
-						<button type="submit">Çıkış Yap</button>
-					</DropdownMenuItem>
-				</form>
+
+				<DropdownMenuItem>
+					<Link href="/api/auth/logout">Çıkış Yap</Link>
+				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

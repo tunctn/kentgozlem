@@ -1,17 +1,11 @@
+"use client";
 import { Separator } from "@/components/ui/separator";
 import { MoveRight } from "lucide-react";
-import { cookies } from "next/headers";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { GoogleIcon } from "../google-icon";
 import { ProviderAuthButton } from "../provider-auth-button";
 
-export default async function SignInPage() {
-	const cookieStore = await cookies();
-	const redirectCookie = cookieStore.get("redirect")?.value;
-	if (redirectCookie) {
-		redirect(redirectCookie);
-	}
+export default function SignInPage() {
 	return (
 		<div>
 			<h2 className="text-2xl font-bold text-center">Giriş Yap</h2>

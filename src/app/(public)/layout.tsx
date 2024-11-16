@@ -2,7 +2,6 @@ import Logo from "@/components/logo";
 import { ProfileButton } from "@/components/profile-button";
 import { SignInButton } from "@/components/sign-in-button";
 import { SignUpButton } from "@/components/sign-up-button";
-import { auth } from "@/lib/auth";
 import { getUser } from "@/server/get-user";
 
 export default async function PublicLayout({
@@ -10,9 +9,7 @@ export default async function PublicLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const session = await auth();
-	const user = session ? await getUser(session) : null;
-
+	const { user } = await getUser();
 	return (
 		<div className="h-full w-full relative flex flex-col">
 			<div

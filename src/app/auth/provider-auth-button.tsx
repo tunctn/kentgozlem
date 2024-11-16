@@ -1,8 +1,8 @@
 import { Button, type ButtonProps } from "@/components/ui/button";
-import { signIn } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useLocationOrigin } from "../hooks/use-location-origin";
 
 export function ProviderAuthButton({
 	provider,
@@ -13,6 +13,8 @@ export function ProviderAuthButton({
 	provider?: "google" | "login-with-email" | "sign-up-with-email";
 	children: ReactNode;
 } & ButtonProps) {
+	const origin = useLocationOrigin();
+
 	if (provider === "login-with-email") {
 		return (
 			<Button className={cn("shadow-none ", className)} size="lg" variant="link" asChild {...props}>
@@ -29,15 +31,8 @@ export function ProviderAuthButton({
 	}
 
 	return (
-		<form
-			action={async () => {
-				"use server";
-				await signIn(provider);
-			}}
-		>
-			<Button className={cn(className)} size="lg" {...props}>
-				{children}
-			</Button>
-		</form>
+		<Button className={cn(className)} size="lg" asChild {...props}>
+			<Link href={`/api/auth/oauth/${provider}?redirect=${origin}`}>{children}</Link>
+		</Button>
 	);
 }

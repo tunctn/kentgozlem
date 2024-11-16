@@ -1,16 +1,12 @@
-import { db } from "@/db";
-import { users } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import type { Session } from "next-auth";
+import { COOKIES } from "@/lib/cookies";
+import { lucia } from "@/lib/lucia";
+import { cookies } from "next/headers";
 
-export async function getUser(session: Session) {
-	const userId = session.user?.id;
-	if (!userId) throw new Error("Session user not found");
-	const dbUser = await db.query.users.findFirst({
-		where: eq(users.id, userId),
-	});
-	if (!dbUser) throw new Error("User not found");
+export async function getUser() {
+	const cookieStore = await cookies();
+	const sessionCookie = cookieStore.get(COOKIES.AUTH_COOKIE);
+	if (!sessionCookie) return { user: null, session: null };
 
-	const { passwordHash, ...user } = dbUser;
-	return user;
+	const { session, user } = await lucia.validateSession(sessionCookie.value);
+	return { session, user };
 }

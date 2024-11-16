@@ -28,6 +28,7 @@ export type AuthUser = {
 	email: string;
 	googleId: string | null;
 	role: UserRole;
+	image: string | null;
 };
 
 export const usersRelations = relations(users, ({ many }) => ({
