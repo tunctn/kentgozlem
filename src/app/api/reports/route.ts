@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { apiRoute } from "@/lib/server";
-import { createReport, createReportSchema } from "@/server/reports/create-report";
 import { getReports, getReportsQuerySchema } from "@/server/reports/get-reports";
+import { createReport, createReportSchema } from "@/utils/server/reports/create-report";
 import { NextResponse } from "next/server";
 
 export const GET = apiRoute({

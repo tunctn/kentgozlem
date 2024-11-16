@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import { apiRoute } from "@/lib/server";
-import { createReport, createReportSchema } from "@/server/reports/create-report";
 import { deleteReport } from "@/server/reports/delete-report";
 import { getReport } from "@/server/reports/get-report";
+import { createReport, createReportSchema } from "@/utils/server/reports/create-report";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 

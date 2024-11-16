@@ -118,12 +118,11 @@ export const GET = apiRoute({
 			});
 			return NextResponse.redirect(redirectUrl);
 		} catch (e) {
-			console.error(e);
 			if (e instanceof OAuth2RequestError && e.message === "bad_verification_code") {
 				// invalid code
 				return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 			}
-			return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+			throw e;
 		}
 	});
 

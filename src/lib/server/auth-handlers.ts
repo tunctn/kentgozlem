@@ -6,6 +6,7 @@ import { COOKIES } from "../cookies";
 import { lucia } from "../lucia";
 import type { ApiRequest, ApiRequestContext } from "./api-route";
 import { ApiError } from "./error-handler";
+import { mergeRequest } from "./utils/merge-request";
 
 const getUserFromRequest = async (_req: NextRequest) => {
 	const cookieStore = await cookies();
@@ -32,13 +33,7 @@ export const withAuth = <T>(fn: (req: AuthRequest, context: ApiRequestContext) =
 		const { session, user } = await getUserFromRequest(req);
 		if (!session || !user) throw new ApiError(401, "Unauthorized");
 
-		return fn(
-			Object.assign(req, {
-				user,
-				session,
-			}) as AuthRequest,
-			context,
-		);
+		return fn(mergeRequest(req, { user, session }) as AuthRequest, context);
 	};
 };
 
@@ -48,12 +43,6 @@ export const withLooseAuth = <T>(
 ) => {
 	return async (req: NextRequest, context: ApiRequestContext) => {
 		const { session, user } = await getUserFromRequest(req);
-		return fn(
-			Object.assign(req, {
-				user,
-				session,
-			}) as LooseAuthRequest,
-			context,
-		);
+		return fn(mergeRequest(req, { user, session }) as LooseAuthRequest, context);
 	};
 };

@@ -13,7 +13,7 @@ export const GET = apiRoute({ query: z.object({ redirect_url: z.string().optiona
 	.withMiddleware(saveOauthFlowStart())
 	.withMiddleware(saveOauthRedirectUrl())
 	.loose(async (req) => {
-		const redirectUrl = req.query.redirect_url;
+		const redirectUrl = req.redirectUrl;
 		if (!redirectUrl) {
 			return NextResponse.redirect(env.NEXT_PUBLIC_APP_URL);
 		}

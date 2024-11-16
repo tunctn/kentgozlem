@@ -3,6 +3,7 @@ import type { z } from "zod";
 
 import type { ApiRequestContext } from "./api-route";
 import { ApiError, withErrorHandler } from "./error-handler";
+import { mergeRequest } from "./utils/merge-request";
 
 export type ValidationSchemas = {
 	params?: z.ZodType;
@@ -49,6 +50,6 @@ export const withValidation = <T extends ValidationSchemas>(
 			validatedData.body = result.data;
 		}
 
-		return fn(Object.assign(req, validatedData) as unknown as ValidatedRequest<T>, context);
+		return fn(mergeRequest(req, validatedData) as ValidatedRequest<T>, context);
 	});
 };

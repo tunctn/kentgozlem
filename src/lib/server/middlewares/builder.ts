@@ -1,5 +1,6 @@
 import type { ValidatedRequest, ValidationSchemas } from "@/lib/server/validation-handler";
 import type { Middleware } from "../types";
+import { mergeRequest } from "../utils/merge-request";
 
 // Generic type for any middleware extension
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -14,6 +15,6 @@ export const apiMiddleware = <E extends MiddlewareExtension>(
 		(handler) =>
 		async (req, context) => {
 			const extension = await extensionBuilder(req);
-			return await handler(Object.assign(req, extension), context);
+			return await handler(mergeRequest(req, extension) as R & E, context);
 		};
 };
