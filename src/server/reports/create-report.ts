@@ -1,23 +1,9 @@
-import { REPORT_STATUS, db } from "@/db";
+import { db } from "@/db";
 import { insertOne } from "@/db/operations";
 import { reports } from "@/db/schema";
 import { ApiError } from "@/lib/server/error-handler";
-import { z } from "zod";
+import type { CreateReportPayload } from "@/zod-schemas/reports";
 import type { UserService } from "../types";
-
-export const createReportSchema = z
-	.object({
-		lat: z.number(),
-		lng: z.number(),
-		address: z.string(),
-		category_id: z.string(),
-		description: z.string().optional(),
-		status: z.enum(REPORT_STATUS).optional(),
-		is_verified: z.boolean().optional(),
-	})
-	.strict();
-export type CreateReportPayload = z.infer<typeof createReportSchema>;
-export type CreateReportResponse = Awaited<ReturnType<typeof createReport>>;
 
 interface CreateReportParams extends UserService {
 	report: CreateReportPayload;

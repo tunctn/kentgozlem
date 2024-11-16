@@ -18,7 +18,7 @@ export const ButtonGroup = ({ children, variant, className }: ButtonGroupProps) 
 						"hover:bg-destructive": variant === "destructive",
 						"hover:bg-none": variant === "outline",
 						"hover:bg-secondary": variant === "secondary",
-						"hover:bg-foreground/60": variant === "glass",
+						"hover:bg-background/80": variant === "glass",
 					},
 					className,
 				),

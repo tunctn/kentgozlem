@@ -1,4 +1,4 @@
-import { REPORT_STATUS } from "@/db/types/report-status";
+import { REPORT_STATUS } from "@/zod-schemas/reports";
 import { relations } from "drizzle-orm";
 import { boolean, decimal, index, pgEnum, pgTable, text, varchar } from "drizzle-orm/pg-core";
 import { baseModelWithUser } from "../abstract";
@@ -20,7 +20,13 @@ export const reports = pgTable(
 			.references(() => categories.id)
 			.notNull(),
 
-		address: varchar("address", { length: 255 }).notNull(),
+		street: varchar("street", { length: 255 }).notNull(),
+		house_number: varchar("house_number", { length: 255 }).notNull(),
+		suburb: varchar("suburb", { length: 255 }).notNull(),
+		city: varchar("city", { length: 100 }).notNull(),
+		postal_code: varchar("postal_code", { length: 20 }).notNull(),
+		country: varchar("country", { length: 100 }).notNull(),
+
 		description: text("description"),
 
 		is_verified: boolean("is_verified").notNull().default(false),

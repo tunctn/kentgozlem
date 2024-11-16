@@ -43,7 +43,9 @@ export function ProfileButton({ user }: { user: AuthUser }) {
 				<DropdownMenuLabel>{user.name}</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 
-				<DropdownMenuItem onClick={onLogout}>Çıkış Yap</DropdownMenuItem>
+				<DropdownMenuItem className="cursor-pointer" onClick={onLogout}>
+					Çıkış Yap
+				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

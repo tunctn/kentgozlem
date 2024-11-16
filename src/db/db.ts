@@ -4,7 +4,6 @@ import { drizzle as pgDrizzle } from "drizzle-orm/node-postgres";
 import { Pool as PGPool } from "pg";
 
 import * as schema from "./schema";
-import "./types";
 
 export const pool = new PGPool({
 	connectionString: env.DATABASE_URL,

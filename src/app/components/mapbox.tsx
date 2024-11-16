@@ -130,6 +130,20 @@ export const Mapbox = ({
 			setViewState({ viewState, saveCookie: true });
 		});
 
+		map.on("movestart", () => {
+			setContextMenu({
+				open: false,
+				spawnCoords: {
+					x: 0,
+					y: 0,
+				},
+				mapCoords: {
+					lat: 0,
+					lng: 0,
+				},
+			});
+		});
+
 		map.on("move", () => {
 			if (!map) return;
 			if (authMap) return;
@@ -141,6 +155,7 @@ export const Mapbox = ({
 				pitch: map.getPitch(),
 				bearing: map.getBearing(),
 			};
+
 			setViewState({ viewState, saveCookie: false });
 		});
 

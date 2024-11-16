@@ -1,4 +1,4 @@
-import { REPORT_STATUS } from "@/db/types/report-status";
+import { REPORT_STATUS } from "@/zod-schemas/reports";
 import { relations } from "drizzle-orm";
 import { index, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { baseModelWithUser } from "../abstract";

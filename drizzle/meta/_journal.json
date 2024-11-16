@@ -71,6 +71,20 @@
       "when": 1731763882046,
       "tag": "0009_medical_madripoor",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1731779982439,
+      "tag": "0010_blushing_archangel",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1731781576638,
+      "tag": "0011_worthless_charles_xavier",
+      "breakpoints": true
     }
   ]
 }

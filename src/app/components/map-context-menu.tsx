@@ -9,12 +9,14 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Portal } from "@radix-ui/react-portal";
-import { Flag, MapIcon, MapPinned, SquareArrowOutUpRight } from "lucide-react";
-import { useRef } from "react";
+import { Flag, MapIcon, MapPinned, Pin, SquareArrowOutUpRight } from "lucide-react";
+import { useRef, useState } from "react";
 import { useMapStore } from "./map-store";
+import { NewReportModal } from "./new-report-modal";
 
 export default function MapContextMenu() {
 	const portalRef = useRef<HTMLDivElement>(null);
+	const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
 	const { contextMenu, setContextMenu } = useMapStore();
 
 	return (
@@ -28,16 +30,21 @@ export default function MapContextMenu() {
 			}}
 		>
 			<DropdownMenu
+				key={`${contextMenu.open}-${contextMenu.mapCoords.lat}-${contextMenu.mapCoords.lng}`}
 				open={contextMenu.open}
 				onOpenChange={(open) => setContextMenu({ ...contextMenu, open })}
 			>
+				{contextMenu.open && (
+					<div className="h-[30px] w-[30px] absolute -top-[15px] -left-[15px] rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-blue-400 border shadow-md flex items-center justify-center">
+						<Pin size={16} className="text-white" />
+					</div>
+				)}
 				<DropdownMenuTrigger />
 				<DropdownMenuContent
-					className="-mt-4"
 					align="start"
 					side="right"
-					sideOffset={0}
-					alignOffset={0}
+					sideOffset={10}
+					alignOffset={10}
 					onContextMenu={(e) => e.preventDefault()}
 				>
 					<DropdownMenuLabel className="flex items-center gap-2">
@@ -45,10 +52,25 @@ export default function MapContextMenu() {
 						{contextMenu.mapCoords.lat}, {contextMenu.mapCoords.lng}
 					</DropdownMenuLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem>
-						<Flag size={16} />
-						Bildir
-					</DropdownMenuItem>
+
+					<NewReportModal
+						isOpen={isNewReportModalOpen}
+						onOpenChange={setIsNewReportModalOpen}
+						lat={contextMenu.mapCoords.lat}
+						lng={contextMenu.mapCoords.lng}
+						trigger={
+							<DropdownMenuItem
+								className="cursor-pointer"
+								onClick={(e) => {
+									e.preventDefault();
+									setIsNewReportModalOpen(true);
+								}}
+							>
+								<Flag size={16} />
+								Bildir
+							</DropdownMenuItem>
+						}
+					/>
 					<DropdownMenuItem
 						onClick={() => {
 							window.open(
@@ -56,6 +78,7 @@ export default function MapContextMenu() {
 								"_blank",
 							);
 						}}
+						className="cursor-pointer"
 					>
 						<MapIcon size={16} />
 						Google Haritalar'da Aç

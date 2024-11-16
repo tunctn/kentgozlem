@@ -28,7 +28,7 @@ const buttonVariants = cva(
 				"xl-icon": "h-11 w-11",
 			},
 			grouped: {
-				true: "bg-transparent backdrop-blur-none border-none hover:bg-foreground/40 shadow-none",
+				true: "bg-transparent backdrop-blur-none border-none hover:bg-foreground/10 shadow-none",
 				false: "",
 			},
 		},
