@@ -20,5 +20,9 @@
 		"titleBar.inactiveBackground": "#5e26c299",
 		"titleBar.inactiveForeground": "#e7e7e799"
 	},
-	"peacock.color": "#5e26c2"
+	"peacock.color": "#5e26c2",
+	"files.associations": {
+		"*.scss": "scss",
+		".env.*": "properties"
+	}
 }

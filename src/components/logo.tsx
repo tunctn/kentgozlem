@@ -1,5 +1,5 @@
-import { useMapStore } from "@/app/components/map-store";
 import { cn } from "@/lib/utils";
+import { getTheme } from "@/utils/get-theme";
 import { Manrope } from "next/font/google";
 import Image from "next/image";
 import type { ComponentPropsWithRef } from "react";
@@ -11,12 +11,8 @@ interface LogoProps extends ComponentPropsWithRef<"a"> {
 }
 
 export default function Logo({ className, forcedTheme, ...props }: LogoProps) {
-	const lightPreset = useMapStore.getState().lightPreset;
-	const isLightPreset = lightPreset === "day" || lightPreset === "dawn";
-	const isForcedLight = forcedTheme === "light";
-	const isForcedDark = forcedTheme === "dark";
-
-	const isLight = isForcedLight || (isLightPreset && !isForcedDark);
+	const { theme } = getTheme();
+	const isLight = forcedTheme ? forcedTheme === "light" : theme === "light";
 
 	return (
 		<a

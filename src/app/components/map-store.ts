@@ -1,3 +1,4 @@
+import { getTheme } from "@/utils/get-theme";
 import { type MapViewState, type UserCoords, saveToLocalStorage } from "@/utils/local-storage";
 import { create } from "zustand";
 
@@ -25,7 +26,7 @@ interface SetViewStateArgs {
 	saveCookie?: boolean;
 }
 
-type LightPreset = "day" | "night" | "dusk" | "dawn";
+export type LightPreset = "day" | "night" | "dusk" | "dawn";
 
 interface MapStore {
 	map: mapboxgl.Map | null;
@@ -81,24 +82,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
 		set({ contextMenu: { ...contextMenu } });
 	},
 
-	lightPreset: (() => {
-		// Get current time and create Date object
-		const now = new Date();
-		const hours = now.getHours();
-
-		// Simple time-based light preset selection
-		let lightPreset: LightPreset;
-		if (hours >= 5 && hours < 7) {
-			lightPreset = "dawn";
-		} else if (hours >= 7 && hours < 17) {
-			lightPreset = "day";
-		} else if (hours >= 17 && hours < 19) {
-			lightPreset = "dusk";
-		} else {
-			lightPreset = "night";
-		}
-		return lightPreset as LightPreset;
-	})(),
+	lightPreset: getTheme().lightPreset,
 
 	locateUser: () => {
 		if (!get().map) return;
