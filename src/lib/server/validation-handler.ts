@@ -49,12 +49,6 @@ export const withValidation = <T extends ValidationSchemas>(
 			validatedData.body = result.data;
 		}
 
-		return fn(
-			{
-				...req,
-				...validatedData,
-			} as ValidatedRequest<T>,
-			context,
-		);
+		return fn(Object.assign(req, validatedData) as unknown as ValidatedRequest<T>, context);
 	});
 };

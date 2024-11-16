@@ -16,7 +16,7 @@ import { useMutation } from "@tanstack/react-query";
 const useSignIn = () => {
 	return useMutation({
 		mutationFn: async (data: SignInSchema) => {
-			return await api.post("auth/signin", { json: data }).json();
+			return await api.post("auth/login", { json: data }).json();
 		},
 	});
 };

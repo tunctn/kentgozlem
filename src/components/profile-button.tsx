@@ -1,3 +1,4 @@
+"use client";
 import type { AuthUser } from "@/db/schema";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,9 +10,27 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Link from "next/link";
+import { api } from "@/lib/api-client";
+import { useMutation } from "@tanstack/react-query";
+
+const useLogout = () => {
+	return useMutation({
+		mutationFn: async () => {
+			return await api.post("auth/logout").json();
+		},
+	});
+};
 
 export function ProfileButton({ user }: { user: AuthUser }) {
+	const logout = useLogout();
+	const onLogout = () => {
+		logout.mutate(undefined, {
+			onSuccess: () => {
+				window.location.href = "/";
+			},
+		});
+	};
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger className="bg-foreground rounded-full">
@@ -24,9 +43,7 @@ export function ProfileButton({ user }: { user: AuthUser }) {
 				<DropdownMenuLabel>{user.name}</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 
-				<DropdownMenuItem>
-					<Link href="/api/auth/logout">Çıkış Yap</Link>
-				</DropdownMenuItem>
+				<DropdownMenuItem onClick={onLogout}>Çıkış Yap</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

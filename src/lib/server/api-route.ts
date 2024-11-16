@@ -21,55 +21,67 @@ type LooseRequest<T extends ValidationSchemas> = ValidatedRequest<T> & {
 	session: Session | null;
 };
 
-class ApiRoute<T extends ValidationSchemas> {
-	private middlewares: Middleware[] = [];
+class ApiRoute<
+	T extends ValidationSchemas,
+	R extends ValidatedRequest<T> = ValidatedRequest<T>,
+	TExtend = unknown,
+> {
+	private middlewares: Middleware<T, R, R, TExtend>[] = [];
 
 	constructor(private schemas: T) {}
 
-	public withMiddleware(middleware: Middleware) {
-		this.middlewares.push(middleware);
-		return this;
-	}
-
-	protected createRoute<R extends ValidatedRequest<T>>(
-		handler: (req: R, context: ApiRequestContext) => Promise<unknown>,
-		authWrapper?: Middleware,
+	public withMiddleware<NewR extends R, NewExtend = TExtend>(
+		middleware: Middleware<T, R, NewR, NewExtend>,
 	) {
-		// Start with the original handler
-		let finalHandler = handler as ApiHandler<T>;
-
-		// Apply auth wrapper first if it exists
-		if (authWrapper) {
-			finalHandler = authWrapper(finalHandler);
-		}
-
-		// Then apply validation
-		finalHandler = withValidation(this.schemas, finalHandler);
-
-		// Finally apply other middlewares in reverse order
-		for (const middleware of [...this.middlewares].reverse()) {
-			const previousHandler = finalHandler;
-			finalHandler = async (req, context) => {
-				return await middleware(previousHandler)(req as never, context);
-			};
-		}
-
-		return finalHandler as unknown as (req: NextRequest) => Promise<void>;
+		this.middlewares.push(middleware as unknown as Middleware<T, R, R, TExtend>);
+		return this as unknown as ApiRoute<T, NewR, NewExtend>;
 	}
 
-	protected route(fn: (req: ValidatedRequest<T>, context: ApiRequestContext) => Promise<unknown>) {
-		return this.createRoute(fn);
+	protected createRoute<FinalR extends R>(
+		handler: (req: FinalR, context: ApiRequestContext) => Promise<unknown>,
+		withAuth?: Middleware<T, FinalR>,
+	) {
+		const route = (req: NextRequest, context: ApiRequestContext) => {
+			return withValidation(
+				this.schemas,
+				async (req: ValidatedRequest<T>, context: ApiRequestContext) => {
+					const withMiddlewares = [...this.middlewares]
+						.reverse()
+						// biome-ignore lint/suspicious/noExplicitAny: Any because TypeScript can't guarantee type safety in the middleware reduction chain.
+						.reduce<ApiHandler<T, any>>((acc, middleware) => middleware(acc), handler);
+
+					if (withAuth) {
+						return withAuth(withMiddlewares)(req as FinalR, context);
+					}
+					return withMiddlewares(req as FinalR, context);
+				},
+			)(req, context);
+		};
+
+		return route as unknown as (req: NextRequest) => Promise<void>;
 	}
 
-	public protected(fn: (req: ProtectedRequest<T>, context: ApiRequestContext) => Promise<unknown>) {
-		return this.createRoute(fn, withAuth);
+	public protected(
+		fn: (
+			req: ProtectedRequest<T> & Omit<R, keyof ValidatedRequest<T>>,
+			context: ApiRequestContext,
+		) => Promise<unknown>,
+	) {
+		// biome-ignore lint/suspicious/noExplicitAny: Any because TypeScript can't guarantee type safety in the middleware reduction chain.
+		return this.createRoute(fn as any, withAuth as any);
 	}
 
-	public loose(fn: (req: LooseRequest<T>, context: ApiRequestContext) => Promise<unknown>) {
-		return this.createRoute(fn, withLooseAuth);
+	public loose(
+		fn: (
+			req: LooseRequest<T> & Omit<R, keyof ValidatedRequest<T>>,
+			context: ApiRequestContext,
+		) => Promise<unknown>,
+	) {
+		// biome-ignore lint/suspicious/noExplicitAny: Any because TypeScript can't guarantee type safety in the middleware reduction chain.
+		return this.createRoute(fn as any, withLooseAuth as any);
 	}
 
-	public public(fn: (req: ValidatedRequest<T>, context: ApiRequestContext) => Promise<unknown>) {
+	public public(fn: (req: R, context: ApiRequestContext) => Promise<unknown>) {
 		return this.createRoute(fn);
 	}
 }

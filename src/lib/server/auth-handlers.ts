@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 import { COOKIES } from "../cookies";
 import { lucia } from "../lucia";
 import type { ApiRequest, ApiRequestContext } from "./api-route";
-import { ApiError, withErrorHandler } from "./error-handler";
+import { ApiError } from "./error-handler";
 
 const getUserFromRequest = async (_req: NextRequest) => {
 	const cookieStore = await cookies();
@@ -28,34 +28,32 @@ const getUserFromRequest = async (_req: NextRequest) => {
 
 type AuthRequest = ApiRequest & { user: AuthUser; session: Session };
 export const withAuth = <T>(fn: (req: AuthRequest, context: ApiRequestContext) => Promise<T>) => {
-	return withErrorHandler(async (req, context) => {
+	return async (req: NextRequest, context: ApiRequestContext) => {
 		const { session, user } = await getUserFromRequest(req);
 		if (!session || !user) throw new ApiError(401, "Unauthorized");
 
 		return fn(
-			{
-				...req,
+			Object.assign(req, {
 				user,
 				session,
-			} as AuthRequest,
+			}) as AuthRequest,
 			context,
 		);
-	});
+	};
 };
 
 type LooseAuthRequest = ApiRequest & { user: AuthUser | null; session: Session | null };
 export const withLooseAuth = <T>(
 	fn: (req: LooseAuthRequest, context: ApiRequestContext) => Promise<T>,
 ) => {
-	return withErrorHandler(async (req, context) => {
+	return async (req: NextRequest, context: ApiRequestContext) => {
 		const { session, user } = await getUserFromRequest(req);
 		return fn(
-			{
-				...req,
+			Object.assign(req, {
 				user,
 				session,
-			} as LooseAuthRequest,
+			}) as LooseAuthRequest,
 			context,
 		);
-	});
+	};
 };

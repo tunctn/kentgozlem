@@ -14,7 +14,7 @@ export const POST = apiRoute({ body: signInSchema }).protected(async (req) => {
 		cookieStore.set(COOKIES.AUTH_COOKIE, lucia.createSessionCookie(session.id).serialize());
 	}
 	if (!session || !user) {
-		cookieStore.set(COOKIES.AUTH_COOKIE, lucia.createBlankSessionCookie().serialize());
+		cookieStore.delete(COOKIES.AUTH_COOKIE);
 	}
 	return NextResponse.json({ message: "Refreshed" }, { status: 201 });
 });

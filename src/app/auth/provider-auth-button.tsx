@@ -32,7 +32,7 @@ export function ProviderAuthButton({
 
 	return (
 		<Button className={cn(className)} size="lg" asChild {...props}>
-			<Link href={`/api/auth/oauth/${provider}?redirect=${origin}`}>{children}</Link>
+			<a href={`/api/auth/oauth/${provider}?redirect_url=${origin}`}>{children}</a>
 		</Button>
 	);
 }

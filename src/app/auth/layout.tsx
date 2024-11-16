@@ -5,8 +5,13 @@ import { cn } from "@/lib/utils";
 import { useMapStore } from "../components/map-store";
 import { useMediaQuery } from "../hooks/use-media-query";
 import AuthLayoutMap from "./layout-map";
+import { OAuthMessageToasts } from "./oauth-message-toasts";
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+interface AuthLayoutProps {
+	children: React.ReactNode;
+}
+
+export default function AuthLayout({ children }: AuthLayoutProps) {
 	const { loaded } = useMapStore();
 	const isSmallDevice = useMediaQuery("only screen and (max-width : 768px)");
 
@@ -20,6 +25,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 				},
 			)}
 		>
+			<OAuthMessageToasts />
 			<Logo className="md:absolute md:top-2 md:left-1/2 md:-translate-x-1/2 md:-ml-1 " />
 
 			<div className="w-full mt-10 md:mt-0 max-w-md md:max-w-sm z-10 md:h-auto md:shadow-2xl shadow-black/20 dark:shadow-black/50 rounded-md">

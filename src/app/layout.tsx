@@ -30,10 +30,10 @@ export default async function RootLayout({
 	if (sessionCookie) {
 		const { session, user } = await lucia.validateSession(sessionCookie.value);
 		if (session?.fresh) {
-			await api.post("/auth/refresh");
+			await api.post("auth/refresh");
 		}
 		if (!session || !user) {
-			await api.post("/auth/logout");
+			await api.post("auth/logout");
 		}
 	}
 

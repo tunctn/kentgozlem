@@ -24,12 +24,16 @@ export const withCors = (
 		}
 
 		// Proceed to the next handler and include CORS headers
+
 		const response = await handler(req, context);
+
+		const responseHeaders = new Headers();
 		if (response instanceof NextResponse) {
 			for (const [key, value] of Object.entries(headers)) {
-				response.headers.set(key, value);
+				responseHeaders.set(key, value);
 			}
 		}
+
 		return response;
 	};
 };

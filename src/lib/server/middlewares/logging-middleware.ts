@@ -1,7 +1,5 @@
-import type { Middleware } from "../types";
+import { apiMiddleware } from "./builder";
 
-export const sampleMiddleware: Middleware = (handler) => async (req, context) => {
-	console.log("Sample middleware running...");
-
-	return await handler(req, context);
-};
+export const loggingMiddleware = apiMiddleware<{ sample: string }>(async (req) => {
+	return { sample: "sample" };
+});

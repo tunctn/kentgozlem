@@ -1,8 +1,9 @@
 import ky from "ky";
 import { toast } from "sonner";
+import { env } from "./env";
 
 export const api = ky.create({
-	prefixUrl: "/api",
+	prefixUrl: env.NEXT_PUBLIC_API_ENDPOINT,
 	hooks: {
 		afterResponse: [
 			async (_request, _options, response) => {

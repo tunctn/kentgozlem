@@ -23,6 +23,7 @@ export const env = createEnv({
 		NEXT_PUBLIC_STORAGE_URL: z.string().url(),
 		NEXT_PUBLIC_API_ENDPOINT: z.string().url(),
 		NEXT_PUBLIC_APP_DOMAIN: z.string().min(1),
+		NEXT_PUBLIC_APP_URL: z.string().url(),
 	},
 	runtimeEnv: {
 		ALLOWED_CORS_ORIGINS: process.env.ALLOWED_CORS_ORIGINS,
@@ -38,6 +39,7 @@ export const env = createEnv({
 		GOOGLE_OAUTH_CLIENT_SECRET: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
 		NEXT_PUBLIC_API_ENDPOINT: process.env.NEXT_PUBLIC_API_ENDPOINT,
 		NEXT_PUBLIC_APP_DOMAIN: process.env.NEXT_PUBLIC_APP_DOMAIN,
+		NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
 	},
 });
 export const NODE_ENV = process.env.NODE_ENV;
