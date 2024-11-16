@@ -1,7 +1,8 @@
-import { REPORT_STATUS, db } from "@/db";
+import { db } from "@/db";
 import { updateOne } from "@/db/operations";
 import { reports } from "@/db/schema";
 import { ApiError } from "@/lib/server/error-handler";
+import { REPORT_STATUS } from "@/zod-schemas/reports";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import type { UserService } from "../types";
