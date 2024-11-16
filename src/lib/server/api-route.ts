@@ -1,5 +1,6 @@
+import type { AuthUser } from "@/db/schema";
+import type { Session } from "lucia";
 import type { NextRequest } from "next/server";
-import type { AuthUser } from "../auth.config";
 import { withAuth, withLooseAuth } from "./auth-handlers";
 import type { ApiHandler, Middleware } from "./types";
 import type { ValidatedRequest, ValidationSchemas } from "./validation-handler";
@@ -11,8 +12,14 @@ export type ApiRequestContext = {
 	params: Record<string, string>;
 };
 
-type ProtectedRequest<T extends ValidationSchemas> = ValidatedRequest<T> & { user: AuthUser };
-type LooseRequest<T extends ValidationSchemas> = ValidatedRequest<T> & { user: AuthUser | null };
+type ProtectedRequest<T extends ValidationSchemas> = ValidatedRequest<T> & {
+	user: AuthUser;
+	session: Session;
+};
+type LooseRequest<T extends ValidationSchemas> = ValidatedRequest<T> & {
+	user: AuthUser | null;
+	session: Session | null;
+};
 
 class ApiRoute<T extends ValidationSchemas> {
 	private middlewares: Middleware[] = [];

@@ -1,5 +1,7 @@
-import { pgEnum, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { boolean, pgEnum, pgTable, text, varchar } from "drizzle-orm/pg-core";
 import { baseModel } from "../abstract";
+import { userSessions } from "./user-sessions";
 
 export const USER_ROLES = ["user", "admin"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
@@ -7,15 +9,27 @@ export const userRolesEnum = pgEnum("user_role_enum", USER_ROLES);
 
 export const users = pgTable("users", {
 	...baseModel,
-	email: varchar("email", { length: 255 }).notNull().unique(),
-	emailVerified: timestamp("email_verified", { withTimezone: true }),
-	passwordHash: varchar("password_hash", { length: 255 }),
-	image: varchar("image"),
 	name: varchar("name", { length: 255 }).notNull(),
-	role: userRolesEnum("role").default("user"),
+	emailAddress: varchar("email_address", { length: 255 }).unique().notNull(),
+	avatarUrl: varchar("avatar_url", { length: 255 }),
+	role: userRolesEnum("role").default("user").notNull(),
+	isEmailAddressVerified: boolean("is_email_address_verified").default(false).notNull(),
+	googleId: text("google_id").unique(),
+	passwordHash: text("password_hash"),
 });
 
 // TypeScript type for the user
 export type User = typeof users.$inferSelect;
-export type AuthUser = Omit<User, "passwordHash">;
 export type NewUser = typeof users.$inferInsert;
+
+export type AuthUser = {
+	id: string;
+	name: string;
+	email: string;
+	googleId: string | null;
+	role: UserRole;
+};
+
+export const usersRelations = relations(users, ({ many }) => ({
+	sessions: many(userSessions),
+}));

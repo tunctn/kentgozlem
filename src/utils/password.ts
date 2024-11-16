@@ -1,12 +1,22 @@
-import { Argon2id } from "oslo/password";
+import { hash, verify } from "@node-rs/argon2";
+
 // Use PBKDF2 for password hashing
 export const saltAndHashPassword = async (password: string) => {
-	const argon2id = new Argon2id();
-	const hash = await argon2id.hash(password);
-	return hash;
+	return await hash(password, {
+		// recommended minimum parameters
+		memoryCost: 19456,
+		timeCost: 2,
+		outputLen: 32,
+		parallelism: 1,
+	});
 };
 
 export const verifyPassword = async (hash: string, password: string) => {
-	const argon2id = new Argon2id();
-	return argon2id.verify(hash, password);
+	return verify(hash, password, {
+		// recommended minimum parameters
+		memoryCost: 19456,
+		timeCost: 2,
+		outputLen: 32,
+		parallelism: 1,
+	});
 };

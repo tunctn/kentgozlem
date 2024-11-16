@@ -6,8 +6,8 @@ import { Pool as PGPool } from "pg";
 import * as schema from "./schema";
 import "./types";
 
-const pgPool = new PGPool({
+export const pool = new PGPool({
 	connectionString: env.DATABASE_URL,
 	ssl: env.DATABASE_SSL === "true",
 });
-export const db = pgDrizzle(pgPool, { schema });
+export const db = pgDrizzle(pool, { schema });

@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { getTheme } from "@/utils/get-theme";
 import { Manrope } from "next/font/google";
@@ -6,14 +8,18 @@ import type { ComponentPropsWithRef } from "react";
 
 const font = Manrope({ subsets: ["latin"] });
 
-interface LogoProps extends ComponentPropsWithRef<"a"> {
-	forcedTheme?: "light" | "dark";
-}
+interface LogoProps extends ComponentPropsWithRef<"a"> {}
 
-export default function Logo({ className, forcedTheme, ...props }: LogoProps) {
+const LightLogo = () => {
+	return <Image src={"/kentgozlem_512w.png"} alt="Kent Gözlem" width={35} height={35} />;
+};
+
+const DarkLogo = () => {
+	return <Image src={"/kentgozlem_bgless_512w.png"} alt="Kent Gözlem" width={35} height={35} />;
+};
+
+export default function Logo({ className, ...props }: LogoProps) {
 	const { theme } = getTheme();
-	const isLight = forcedTheme ? forcedTheme === "light" : theme === "light";
-
 	return (
 		<a
 			href="/"
@@ -22,13 +28,10 @@ export default function Logo({ className, forcedTheme, ...props }: LogoProps) {
 				className,
 			)}
 			{...props}
+			suppressHydrationWarning
 		>
-			<Image
-				src={isLight ? "/kentgozlem_512w.png" : "/kentgozlem_bgless_512w.png"}
-				alt="Kent Gözlem"
-				width={isLight ? 35 : 42}
-				height={isLight ? 35 : 42}
-			/>
+			{theme === "light" ? <LightLogo /> : <DarkLogo />}
+
 			<span className={cn("text-xl font-black text-foreground select-none", font.className)}>
 				kent gözlem
 			</span>

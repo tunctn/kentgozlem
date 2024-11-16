@@ -1,74 +1,59 @@
-import { db } from "@/db";
+import type { AuthUser } from "@/db/schema";
+import type { Session } from "lucia";
+import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
-import { auth } from "../auth";
-import type { AuthUser } from "../auth.config";
+import { COOKIES } from "../cookies";
+import { lucia } from "../lucia";
 import type { ApiRequest, ApiRequestContext } from "./api-route";
 import { ApiError, withErrorHandler } from "./error-handler";
 
 const getUserFromRequest = async (_req: NextRequest) => {
-	const session = await auth();
-	if (!session?.user) throw new ApiError(401, "Unauthorized");
+	const cookieStore = await cookies();
+	const sessionId = cookieStore.get(COOKIES.AUTH_COOKIE)?.value;
 
-	const userId = session.user.id;
-	if (!userId) throw new ApiError(401, "Unauthorized");
+	if (!sessionId) return { user: null, session: null };
 
-	const dbUser = await db.query.users.findFirst({
-		where: (users, { eq }) => eq(users.id, userId),
-	});
-	if (!dbUser) throw new ApiError(401, "Unauthorized");
-	return {
-		email: dbUser.email,
-		id: dbUser.id,
-		name: dbUser.name,
-		image: dbUser.image,
-		role: dbUser.role,
-	} as AuthUser;
+	const { session, user } = await lucia.validateSession(sessionId);
+	if (session?.fresh) {
+		cookieStore.set(COOKIES.AUTH_COOKIE, lucia.createSessionCookie(session.id).serialize());
+	}
+	if (!session || !user) {
+		cookieStore.set(COOKIES.AUTH_COOKIE, lucia.createBlankSessionCookie().serialize());
+
+		return { user: null, session: null };
+	}
+
+	return { user, session };
 };
 
-type AuthRequest = ApiRequest & { user: AuthUser };
+type AuthRequest = ApiRequest & { user: AuthUser; session: Session };
 export const withAuth = <T>(fn: (req: AuthRequest, context: ApiRequestContext) => Promise<T>) => {
 	return withErrorHandler(async (req, context) => {
-		const user = await getUserFromRequest(req);
+		const { session, user } = await getUserFromRequest(req);
+		if (!session || !user) throw new ApiError(401, "Unauthorized");
+
 		return fn(
 			{
 				...req,
 				user,
+				session,
 			} as AuthRequest,
 			context,
 		);
 	});
 };
 
-const getLooseUserFromRequest = async (_req: NextRequest) => {
-	const session = await auth();
-	if (!session?.user) return null;
-
-	const userId = session.user.id;
-	if (!userId) return null;
-
-	const dbUser = await db.query.users.findFirst({
-		where: (users, { eq }) => eq(users.id, userId),
-	});
-	if (!dbUser) return null;
-	return {
-		email: dbUser.email,
-		id: dbUser.id,
-		name: dbUser.name,
-		image: dbUser.image,
-		role: dbUser.role,
-	} as AuthUser;
-};
-
-type LooseAuthRequest = ApiRequest & { user: AuthUser | null };
+type LooseAuthRequest = ApiRequest & { user: AuthUser | null; session: Session | null };
 export const withLooseAuth = <T>(
 	fn: (req: LooseAuthRequest, context: ApiRequestContext) => Promise<T>,
 ) => {
 	return withErrorHandler(async (req, context) => {
-		const user = await getLooseUserFromRequest(req);
+		const { session, user } = await getUserFromRequest(req);
 		return fn(
 			{
 				...req,
 				user,
+				session,
 			} as LooseAuthRequest,
 			context,
 		);

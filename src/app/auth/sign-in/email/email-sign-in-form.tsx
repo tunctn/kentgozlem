@@ -33,7 +33,7 @@ export function SignInForm() {
 	const signinMutation = useSignIn();
 	const onSubmit = form.handleSubmit((data) => {
 		signinMutation.mutate(data, {
-			onSuccess: () => {
+			onSuccess: (data) => {
 				window.location.href = "/";
 			},
 		});

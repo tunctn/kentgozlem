@@ -1,4 +1,5 @@
 import type { LightPreset } from "@/app/components/map-store";
+import { IS_DEV } from "@/lib/env";
 
 export const getTheme = (): { lightPreset: LightPreset; theme: "light" | "dark" } => {
 	// Get current time and create Date object
@@ -16,7 +17,13 @@ export const getTheme = (): { lightPreset: LightPreset; theme: "light" | "dark" 
 	} else {
 		lightPreset = "night";
 	}
-	lightPreset as LightPreset;
+
+	if (IS_DEV) {
+		return {
+			lightPreset: "night",
+			theme: "dark",
+		};
+	}
 
 	return {
 		lightPreset,

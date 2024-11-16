@@ -1,38 +1,59 @@
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { type AuthUser, users } from "@/db/schema";
+import { COOKIES } from "@/lib/cookies";
+import { NODE_ENV, env } from "@/lib/env";
+import { lucia } from "@/lib/lucia";
 import { apiRoute } from "@/lib/server";
 import { ApiError } from "@/lib/server/error-handler";
 import { signupSchema } from "@/lib/zod";
 import { saltAndHashPassword } from "@/utils/password";
+import { eq } from "drizzle-orm";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export const POST = apiRoute({ body: signupSchema }).loose(async (req) => {
 	const { email, password, name } = req.body;
 
 	// Check if user already exists
-	const existingUser = await db.query.users.findFirst({
-		where: (table, { eq }) => eq(table.email, email),
-	});
+	const existingUsers = await db.select().from(users).where(eq(users.emailAddress, email));
+	const existingUser = existingUsers[0];
 	if (existingUser) {
-		throw new ApiError(400, "User already exists");
+		throw new ApiError(400, "Bu e-posta adresi zaten kullanılıyor");
 	}
 
 	// Hash password
-	const hashedPassword = await saltAndHashPassword(password);
+	const passwordHash = await saltAndHashPassword(password);
 
 	// Create new user
-	const userRows = await db
+	const [newUser] = await db
 		.insert(users)
 		.values({
-			email,
-			passwordHash: hashedPassword,
+			emailAddress: email,
+			passwordHash,
 			name,
+			role: "user",
 		})
 		.returning();
-	const user = userRows[0];
+	if (!newUser) throw new ApiError(500, "Kullanıcı oluşturulamadı");
 
-	// Remove password from response
-	const { passwordHash: _, ...userWithoutPassword } = user;
+	const session = await lucia.createSession(newUser.id, {});
+	const cookieStore = await cookies();
+	cookieStore.set(COOKIES.AUTH_COOKIE, session.id, {
+		path: "/",
+		httpOnly: true,
+		domain: env.NEXT_PUBLIC_APP_DOMAIN,
+		secure: NODE_ENV === "production",
+		expires: session.expiresAt,
+		sameSite: "lax",
+	});
 
-	return NextResponse.json({ user: userWithoutPassword }, { status: 201 });
+	const user: AuthUser = {
+		id: newUser.id,
+		googleId: newUser.googleId,
+		name: newUser.name,
+		email: newUser.emailAddress,
+		role: newUser.role,
+	};
+
+	return NextResponse.json({ user }, { status: 201 });
 });

@@ -22,7 +22,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 		>
 			<Logo className="md:absolute md:top-2 md:left-1/2 md:-translate-x-1/2 md:-ml-1 " />
 
-			<div className="w-full mt-10 md:mt-0 max-w-md md:max-w-sm z-10 border border-border md:h-auto md:shadow-2xl shadow-black/20 dark:shadow-black/50 rounded-md">
+			<div className="w-full mt-10 md:mt-0 max-w-md md:max-w-sm z-10 md:h-auto md:shadow-2xl shadow-black/20 dark:shadow-black/50 rounded-md">
 				<div
 					className={cn(
 						"p-6 bg-background/70 dark:bg-background/60 border border-background/30 backdrop-blur-2xl rounded-[inherit]",

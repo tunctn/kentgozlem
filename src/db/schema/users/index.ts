@@ -1,4 +1,2 @@
-export * from "./accounts";
-export * from "./sessions";
+export * from "./user-sessions";
 export * from "./users";
-export * from "./verification-tokens";
