@@ -5,11 +5,11 @@ import { NODE_ENV, env } from "@/lib/env";
 import { googleOauth, lucia } from "@/lib/lucia";
 import { apiRoute } from "@/lib/server";
 import { ApiError } from "@/lib/server/error-handler";
+import { z } from "@/lib/zod";
 import { OAuth2RequestError } from "arctic";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { callbackVerifier } from "./callback-verifier.middleware";
 
 export const GET = apiRoute({

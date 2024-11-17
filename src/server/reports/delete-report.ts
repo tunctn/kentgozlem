@@ -2,8 +2,8 @@ import { db } from "@/db";
 import { removeOne } from "@/db/operations";
 import { reports } from "@/db/schema";
 import { ApiError } from "@/lib/server/error-handler";
+import { z } from "@/lib/zod";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 import type { UserService } from "../types";
 
 export const deleteReportSchema = z.object({

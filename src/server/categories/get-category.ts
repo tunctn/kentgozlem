@@ -5,9 +5,6 @@ import type { UserService } from "../types";
 interface GetCategoryParams extends UserService {
 	id: string;
 }
-
-export type GetCategoryResponse = Awaited<ReturnType<typeof getCategory>>;
-
 export const getCategory = async (params: GetCategoryParams) => {
 	const { id, user } = params;
 

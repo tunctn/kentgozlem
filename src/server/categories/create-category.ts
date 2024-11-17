@@ -2,16 +2,10 @@ import { db } from "@/db";
 import { insertOne } from "@/db/operations";
 import { categories } from "@/db/schema";
 import { ApiError } from "@/lib/server/error-handler";
-import { z } from "zod";
+import type { CreateCategoryPayload } from "@/zod-schemas/categories";
+import { eq } from "drizzle-orm";
 import type { UserService } from "../types";
 
-export const createCategorySchema = z
-	.object({
-		name: z.string(),
-		description: z.string().optional(),
-	})
-	.strict();
-export type CreateCategoryPayload = z.infer<typeof createCategorySchema>;
 export type CreateCategoryResponse = Awaited<ReturnType<typeof createCategory>>;
 
 interface CreateCategoryParams extends UserService {
@@ -22,6 +16,11 @@ export const createCategory = async (params: CreateCategoryParams) => {
 
 	const isAdmin = user.role === "admin";
 	if (!isAdmin) throw new ApiError(403, "Forbidden");
+
+	const existingCategory = await db.query.categories.findFirst({
+		where: eq(categories.name, category.name),
+	});
+	if (existingCategory) throw new ApiError(400, "Kategori zaten mevcut");
 
 	const createdCategory = await insertOne(db, categories, {
 		...category,

@@ -2,9 +2,9 @@ import { db } from "@/db";
 import { updateOne } from "@/db/operations";
 import { reports } from "@/db/schema";
 import { ApiError } from "@/lib/server/error-handler";
+import { z } from "@/lib/zod";
 import { REPORT_STATUS } from "@/zod-schemas/reports";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 import type { UserService } from "../types";
 
 export const updateReportSchema = z

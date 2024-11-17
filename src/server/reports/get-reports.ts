@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { z } from "zod";
+import { z } from "@/lib/zod";
 import type { LooseUserService } from "../types";
 
 export const getReportsQuerySchema = z

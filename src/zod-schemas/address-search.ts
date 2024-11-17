@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 export const addressSearchSchema = z.object({
 	lat: z.coerce.number(),

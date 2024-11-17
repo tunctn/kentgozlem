@@ -1,11 +1,11 @@
 import { db } from "@/db";
 import { apiRoute } from "@/lib/server";
+import { z } from "@/lib/zod";
 import { createReport } from "@/server/reports/create-report";
 import { deleteReport } from "@/server/reports/delete-report";
 import { getReport } from "@/server/reports/get-report";
 import { createReportSchema } from "@/zod-schemas/reports";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 const ReportIdSchema = z.object({ reportId: z.string() });
 

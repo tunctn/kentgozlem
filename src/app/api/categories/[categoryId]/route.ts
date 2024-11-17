@@ -1,9 +1,10 @@
 import { apiRoute } from "@/lib/server";
+import { z } from "@/lib/zod";
 import { deleteCategory } from "@/server/categories/delete-category";
 import { getCategory } from "@/server/categories/get-category";
-import { updateCategory, updateCategorySchema } from "@/server/categories/update-category";
+import { updateCategory } from "@/server/categories/update-category";
+import { updateCategorySchema } from "@/zod-schemas/categories";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 const CategoryIdSchema = z.object({ categoryId: z.string() });
 

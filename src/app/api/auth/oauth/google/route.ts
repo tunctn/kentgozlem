@@ -4,10 +4,10 @@ import { googleOauth } from "@/lib/lucia";
 import { apiRoute, saveOauthFlowStart } from "@/lib/server";
 import { saveOauthRedirectUrl } from "@/lib/server/middlewares/save-oauth-redirect-url";
 
+import { z } from "@/lib/zod";
 import { generateCodeVerifier, generateState } from "arctic";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 export const GET = apiRoute({ query: z.object({ redirect_url: z.string().optional() }) })
 	.withMiddleware(saveOauthFlowStart())

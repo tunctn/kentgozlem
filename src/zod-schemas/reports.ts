@@ -1,5 +1,5 @@
+import { z } from "@/lib/zod";
 import type { createReport } from "@/server/reports/create-report";
-import { z } from "zod";
 
 export const REPORT_STATUS = ["pending", "investigating", "rejected", "resolved"] as const;
 export type ReportStatus = (typeof REPORT_STATUS)[number];

@@ -2,18 +2,9 @@ import { db } from "@/db";
 import { updateOne } from "@/db/operations";
 import { categories } from "@/db/schema";
 import { ApiError } from "@/lib/server/error-handler";
+import type { UpdateCategoryPayload } from "@/zod-schemas/categories";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 import type { UserService } from "../types";
-
-export const updateCategorySchema = z
-	.object({
-		name: z.string().optional(),
-		description: z.string().optional(),
-	})
-	.strict();
-export type UpdateCategoryPayload = z.infer<typeof updateCategorySchema>;
-export type UpdateCategoryResponse = Awaited<ReturnType<typeof updateCategory>>;
 
 interface UpdateCategoryParams extends UserService {
 	id: string;

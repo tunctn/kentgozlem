@@ -1,10 +1,10 @@
 import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE, S3 } from "@/lib/s3";
 import { apiRoute } from "@/lib/server";
+import { z } from "@/lib/zod";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 export const POST = apiRoute({
 	body: z.object({

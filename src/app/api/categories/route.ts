@@ -1,7 +1,8 @@
 import { db } from "@/db";
 import { apiRoute } from "@/lib/server";
-import { createCategory, createCategorySchema } from "@/server/categories/create-category";
+import { createCategory } from "@/server/categories/create-category";
 import { getCategories } from "@/server/categories/get-categories";
+import { createCategorySchema } from "@/zod-schemas/categories";
 import { NextResponse } from "next/server";
 
 export const GET = apiRoute({}).protected(async (req) => {

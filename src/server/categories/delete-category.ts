@@ -3,17 +3,10 @@ import { removeOne } from "@/db/operations";
 import { categories } from "@/db/schema";
 import { ApiError } from "@/lib/server/error-handler";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 import type { UserService } from "../types";
 
-export const deleteCategorySchema = z.object({
-	id: z.string(),
-});
-export type DeleteCategoryPayload = z.infer<typeof deleteCategorySchema>;
-export type DeleteCategoryResponse = Awaited<ReturnType<typeof deleteCategory>>;
-
 interface DeleteCategoryParams extends UserService {
-	payload: DeleteCategoryPayload;
+	payload: { id: string };
 }
 export const deleteCategory = async (params: DeleteCategoryParams) => {
 	const { user, payload } = params;
