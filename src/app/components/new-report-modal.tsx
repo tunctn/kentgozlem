@@ -34,24 +34,18 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { api } from "@/lib/api-client";
-import { QUERY_KEYS } from "@/lib/api/keys";
+import { useUserStore } from "@/components/user-store";
 import { useAddressSearch } from "@/lib/api/use-address-search";
 import { useCategories } from "@/lib/api/use-categories";
 import { cn } from "@/lib/utils";
-import {
-	type CreateCategoryPayload,
-	type CreateCategoryResponse,
-	createCategorySchema,
-} from "@/zod-schemas/categories";
 import { COUNTRIES } from "@/zod-schemas/countries";
 import { type CreateReportPayload, createReportSchema } from "@/zod-schemas/reports";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CommandLoading } from "cmdk";
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, useFormContext } from "react-hook-form";
+import { NewCategoryModal } from "./new-category-modal";
 
 interface NewReportModalProps {
 	trigger: React.ReactNode;
@@ -81,10 +75,10 @@ export const NewReportModal = ({
 			country: "",
 			description: "",
 			category_id: "",
-			is_verified: false,
-			status: "pending",
 			house_number: "",
 			suburb: "",
+			is_verified: false,
+			status: "pending",
 		},
 		disabled: isPending,
 	});
@@ -236,6 +230,7 @@ export const NewReportModal = ({
 };
 
 const CategorySelect = () => {
+	const { user } = useUserStore();
 	const { data, isPending: isCategoriesPending } = useCategories();
 	const form = useFormContext<CreateReportPayload>();
 	const [searchValue, setSearchValue] = useState("");
@@ -280,8 +275,20 @@ const CategorySelect = () => {
 										value={searchValue}
 									/>
 									<CommandList>
-										<CommandEmpty>
-											<NewCategoryButton label={searchValue} onSuccess={onCategoryAdd} />
+										<CommandEmpty
+											className={cn("", {
+												"p-0": user?.role === "admin",
+											})}
+										>
+											{user?.role === "admin" ? (
+												<NewCategoryModal
+													key={searchValue}
+													label={searchValue}
+													onSuccess={onCategoryAdd}
+												/>
+											) : (
+												<div>Kategori bulunamadı.</div>
+											)}
 										</CommandEmpty>
 										<CommandGroup>
 											{isCategoriesPending && <CommandLoading>Yükleniyor...</CommandLoading>}
@@ -312,106 +319,5 @@ const CategorySelect = () => {
 				);
 			}}
 		/>
-	);
-};
-
-const useNewCategory = () => {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: async (data: CreateCategoryPayload) => {
-			return await api.post<CreateCategoryResponse>("categories", { json: data }).json();
-		},
-		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
-		},
-	});
-};
-
-const NewCategoryButton = ({
-	label,
-	onSuccess,
-}: {
-	label: string;
-	onSuccess: (categoryId: string) => void;
-}) => {
-	const newCategoryMutation = useNewCategory();
-	const [isOpen, setIsOpen] = useState(false);
-
-	const form = useForm<CreateCategoryPayload>({
-		resolver: zodResolver(createCategorySchema),
-		defaultValues: {
-			name: label,
-			description: "",
-		},
-	});
-
-	const onSubmit = (data: CreateCategoryPayload) => {
-		newCategoryMutation.mutate(data, {
-			onSuccess: (data) => {
-				onSuccess?.(data.id);
-				setIsOpen(false);
-			},
-		});
-	};
-
-	return (
-		<Dialog open={isOpen} onOpenChange={setIsOpen}>
-			<DialogTrigger asChild>
-				<Button
-					variant="outline"
-					className="text-muted-foreground cursor-pointer"
-					disabled={label.length === 0}
-				>
-					<Plus className="mr-2 h-4 w-4" />
-					Ekle: {label}
-				</Button>
-			</DialogTrigger>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>Yeni Kategori Ekle</DialogTitle>
-					<DialogDescription>
-						Yeni bir kategori eklemek için aşağıdaki formu doldurun.
-					</DialogDescription>
-				</DialogHeader>
-				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-						<FormField
-							control={form.control}
-							name="name"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Kategori Adı</FormLabel>
-									<FormControl>
-										<Input {...field} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="description"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Açıklama</FormLabel>
-									<FormControl>
-										<Input {...field} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<div className="flex justify-end gap-2">
-							<Button variant="outline" onClick={() => setIsOpen(false)}>
-								İptal
-							</Button>
-							<Button type="submit" disabled={newCategoryMutation.isPending}>
-								{newCategoryMutation.isPending ? "Ekleniyor..." : "Ekle"}
-							</Button>
-						</div>
-					</form>
-				</Form>
-			</DialogContent>
-		</Dialog>
 	);
 };

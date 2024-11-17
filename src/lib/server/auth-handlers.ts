@@ -11,6 +11,7 @@ import { mergeRequest } from "./utils/merge-request";
 const getUserFromRequest = async (_req: NextRequest) => {
 	const cookieStore = await cookies();
 	const sessionId = cookieStore.get(COOKIES.AUTH_COOKIE)?.value;
+	const allCookies = cookieStore.getAll();
 
 	if (!sessionId) return { user: null, session: null };
 

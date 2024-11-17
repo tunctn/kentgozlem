@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { type SignupSchema, signupSchema } from "@/lib/zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -11,6 +10,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api-client";
+import { type SignupSchema, signupSchema } from "@/zod-schemas/auth";
 import { useMutation } from "@tanstack/react-query";
 import { Mail } from "lucide-react";
 

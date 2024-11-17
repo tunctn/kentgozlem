@@ -4,6 +4,7 @@ import { env } from "./env";
 
 export const api = ky.create({
 	prefixUrl: env.NEXT_PUBLIC_API_ENDPOINT,
+	credentials: "include",
 	hooks: {
 		afterResponse: [
 			async (_request, _options, response) => {

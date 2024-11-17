@@ -10,7 +10,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api-client";
-import { type SignInSchema, signInSchema } from "@/lib/zod";
+import { type SignInSchema, signInSchema } from "@/zod-schemas/auth";
 import { useMutation } from "@tanstack/react-query";
 
 const useSignIn = () => {
