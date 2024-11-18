@@ -1,4 +1,5 @@
 "use client";
+import { DraggableHorizontalList } from "@/components/draggable-horizontal-list";
 import { Button } from "@/components/ui/button";
 import {
 	Command,
@@ -45,7 +46,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CommandLoading } from "cmdk";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronsUpDown, Upload, X } from "lucide-react";
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useId, useState } from "react";
 import { ErrorCode, useDropzone } from "react-dropzone";
 import { useForm, useFormContext } from "react-hook-form";
 import { toast } from "sonner";
@@ -208,53 +209,61 @@ export const NewReportModal = ({
 
 const ImagePlaceholder = memo(
 	({
+		fileId,
 		index,
-		isDragActive,
+		isOrderDragging,
+		isDropzoneDragging,
 		files,
 		onRefresh,
 	}: {
+		fileId: string;
 		index: number;
-		isDragActive: boolean;
-		files: File[];
-		onRefresh: (index: number) => void;
+		isOrderDragging: boolean;
+		isDropzoneDragging: boolean;
+		files: { id: string; file: File | null; order: number }[];
+		onRefresh: (id: string) => void;
 	}) => {
-		const file = files[index];
+		const file = files.find((f) => f.id === fileId);
+		if (!file) return null;
 		return (
 			<div
-				data-dragging={isDragActive}
+				data-dropzone-dragging={isDropzoneDragging}
+				data-order-dragging={isOrderDragging}
 				className={cn(
 					"w-[107px] relative ease-in-out aspect-square flex-shrink-0 transition-all cursor-pointer shadow-lg dark:shadow-white/5 bg-background rounded-[18px]",
 					{
-						"z-[1] rotate-[7deg] hover:rotate-[12deg] translate-x-[-3px] data-[dragging=true]:translate-x-[150px]":
-							index === 0,
-						"z-[2] rotate-[-4deg] hover:rotate-[4deg] translate-x-[-30px] data-[dragging=true]:translate-x-[60px]":
-							index === 1,
-						"z-[6] rotate-[5deg] hover:rotate-[-5deg] translate-x-[-40px] data-[dragging=true]:translate-x-[-30px]":
-							index === 2,
-						"z-[4] rotate-[-5deg] hover:rotate-[10deg] translate-x-[-60px] data-[dragging=true]:translate-x-[-120px]":
-							index === 3,
-						"z-[3] rotate-[10deg] hover:rotate-[15deg] translate-x-[-70px] data-[dragging=true]:translate-x-[-210px]":
-							index === 4,
+						"rotate-[7deg] hover:rotate-[12deg]": file.order === 0,
+						"rotate-[-4deg] hover:rotate-[4deg]": file.order === 1,
+						"rotate-[5deg] hover:rotate-[-5deg]": file.order === 2,
+						"rotate-[-5deg] hover:rotate-[10deg]": file.order === 3,
+						"rotate-[10deg] hover:rotate-[15deg]": file.order === 4,
+
+						"data-[dropzone-dragging=true]:translate-x-[170px]": file.order === 0,
+						"data-[dropzone-dragging=true]:translate-x-[80px]": file.order === 1,
+						"data-[dropzone-dragging=true]:translate-x-[-10px]": file.order === 2,
+						"data-[dropzone-dragging=true]:translate-x-[-100px]": file.order === 3,
+						"data-[dropzone-dragging=true]:translate-x-[-190px]": file.order === 4,
 					},
 				)}
-				style={{ transitionDuration: "400ms" }}
+				style={{ zIndex: file.order, transitionDuration: "400ms" }}
 			>
 				<div className="w-full h-full border border-muted-foreground/30 rounded-[17px] ">
 					<div className="w-full h-full rounded-2xl overflow-hidden border-4 border-muted-foreground/[15%]">
 						<div className="w-full h-full bg-gradient-to-b from-muted-foreground/10 border border-muted-foreground/[15%] rounded-lg to-muted-foreground/5">
-							{file ? (
+							{file.file ? (
 								<button
 									type="button"
 									className="w-full h-full group"
+									disabled={isOrderDragging || isDropzoneDragging}
 									onClick={(e) => {
 										e.stopPropagation(); // Prevent triggering the dropzone
-										onRefresh(index);
+										onRefresh(fileId);
 									}}
 								>
 									<img
-										src={URL.createObjectURL(file)}
+										src={URL.createObjectURL(file.file)}
 										alt={`Preview ${index}`}
-										className="w-full h-full object-cover"
+										className="w-full h-full object-cover select-none pointer-events-none"
 									/>
 									<div className="opacity-0 group-hover:opacity-100 absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 p-1 rounded-full bg-white/5 hover:bg-white/10 transition-all">
 										<X className="w-4 h-4 text-muted-foreground" />
@@ -271,32 +280,84 @@ const ImagePlaceholder = memo(
 			</div>
 		);
 	},
-	(prevProps, nextProps) => {
-		return (
-			prevProps.isDragActive === nextProps.isDragActive &&
-			prevProps.files[prevProps.index] === nextProps.files[nextProps.index]
-		);
-	},
 );
 
 ImagePlaceholder.displayName = "ImagePlaceholder";
 
 const ImagesForm = () => {
+	const [isOrderDragging, setIsOrderDragging] = useState(false);
+	const [isOrderDraggingDelayed, setIsOrderDraggingDelayed] = useState(false);
+
+	const fileId1 = useId();
+	const fileId2 = useId();
+	const fileId3 = useId();
+	const fileId4 = useId();
+	const fileId5 = useId();
+
 	const form = useFormContext<CreateReportPayload>();
-	const [files, setFiles] = useState<File[]>([]);
+	const [files, setFiles] = useState<{ id: string; file: File | null; order: number }[]>([
+		{
+			id: fileId1,
+			file: null,
+			order: 0,
+		},
+		{
+			id: fileId2,
+			file: null,
+			order: 1,
+		},
+		{
+			id: fileId3,
+			file: null,
+			order: 2,
+		},
+		{
+			id: fileId4,
+			file: null,
+			order: 3,
+		},
+		{
+			id: fileId5,
+			file: null,
+			order: 4,
+		},
+	]);
 
 	const onDrop = useCallback(
 		(acceptedFiles: File[]) => {
-			if (files.length + acceptedFiles.length > 5) {
-				toast.error("En fazla 5 dosya seçilebilir.");
-			} else {
-				setFiles((prev) => [...prev, ...acceptedFiles]);
+			const existingFiles = files.filter((f) => f.file !== null);
+
+			if (existingFiles.length + acceptedFiles.length > 5) {
+				return toast.error("En fazla 5 dosya seçilebilir.");
 			}
+
+			setFiles((prev) => {
+				const newFiles = [...prev];
+				let filesAdded = 0;
+
+				// Find empty slots and fill them
+				for (let i = 0; i < newFiles.length && filesAdded < acceptedFiles.length; i++) {
+					if (newFiles[i].file === null) {
+						newFiles[i] = {
+							id: newFiles[i].id,
+							file: acceptedFiles[filesAdded],
+							order: i,
+						};
+						filesAdded++;
+					}
+				}
+
+				return newFiles;
+			});
 		},
-		[files.length],
+		[files],
 	);
 
-	const { getRootProps, getInputProps, isDragActive } = useDropzone({
+	const {
+		getRootProps,
+		getInputProps,
+		isDragActive: isDropzoneDragActive,
+	} = useDropzone({
 		onDrop,
 		accept: {
 			"image/*": [".jpeg", ".jpg", ".png", ".webp", ".heic"],
@@ -305,6 +366,9 @@ const ImagesForm = () => {
 		maxSize: 5 * 1024 * 1024, // 5MB
 		minSize: 1 * 1024, // 1KB
 		multiple: true,
+		noClick: isOrderDraggingDelayed,
+		noDrag: isOrderDraggingDelayed,
+		disabled: isOrderDraggingDelayed,
 		onDropRejected: (errors) => {
 			const firstError = errors[0];
 			const errorCode = firstError.errors[0].code as ErrorCode;
@@ -323,53 +387,86 @@ const ImagesForm = () => {
 		},
 	});
 
-	const onRefresh = (index: number) => {
-		setFiles((prev) => prev.filter((_, i) => i !== index));
+	const onRefresh = (id: string) => {
+		setFiles((prev) => prev.map((file, i) => (file.id === id ? { ...file, file: null } : file)));
 	};
+	const handleOnDragEnd = (items: { id: string; order: number }[]) => {
+		setIsOrderDragging(false);
+		setTimeout(() => {
+			setIsOrderDraggingDelayed(false);
+		}, 400);
+
+		const updatedInputs = files.map((input) => {
+			const newField = {
+				...input,
+			};
+
+			const newOrder = items.findIndex((item) => item.id === newField.id);
+			if (newOrder === -1) return null;
+
+			return {
+				...newField,
+				order: newOrder,
+			};
+		});
+
+		setFiles(
+			updatedInputs.filter((input) => input !== null) as {
+				id: string;
+				file: File | null;
+				order: number;
+			}[],
+		);
+	};
+
+	useEffect(() => {
+		// Change cursor when dragging compass
+		if (isOrderDragging || isDropzoneDragActive) {
+			document.body.classList.add("grabbing");
+		} else {
+			document.body.classList.remove("grabbing");
+		}
+	}, [isOrderDragging, isDropzoneDragActive]);
 
 	return (
 		<div className="flex flex-col gap-3" {...getRootProps()}>
-			<div className="flex">
-				<input {...getInputProps()} />
-				<ImagePlaceholder
-					index={0}
-					isDragActive={isDragActive}
-					files={files}
-					onRefresh={onRefresh}
-				/>
-				<ImagePlaceholder
-					index={1}
-					isDragActive={isDragActive}
-					files={files}
-					onRefresh={onRefresh}
-				/>
-				<ImagePlaceholder
-					index={2}
-					isDragActive={isDragActive}
-					files={files}
-					onRefresh={onRefresh}
-				/>
-				<ImagePlaceholder
-					index={3}
-					isDragActive={isDragActive}
-					files={files}
-					onRefresh={onRefresh}
-				/>
-				<ImagePlaceholder
-					index={4}
-					isDragActive={isDragActive}
-					files={files}
-					onRefresh={onRefresh}
+			<input {...getInputProps()} />
+			<div>
+				<DraggableHorizontalList
+					key={files.map((_, index) => index).join(",")}
+					onDragStart={() => {
+						setIsOrderDragging(true);
+						setIsOrderDraggingDelayed(true);
+					}}
+					onDragEnd={handleOnDragEnd}
+					itemWidth={90}
+					items={files.map((file, index) => ({
+						id: file.id,
+						render: (bind) => {
+							return (
+								<div key={file.id} {...bind} className="touch-none">
+									<ImagePlaceholder
+										index={index}
+										isOrderDragging={isOrderDraggingDelayed}
+										isDropzoneDragging={isDropzoneDragActive}
+										files={files}
+										fileId={file.id}
+										onRefresh={onRefresh}
+									/>
+								</div>
+							);
+						},
+					}))}
 				/>
 			</div>
 
 			<div
 				className={cn(
-					"border-2 -mt-10 h-[140px] border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors",
-					isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25",
+					"border-2 mt-[40px] h-[160px] border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors",
+					isDropzoneDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25",
 				)}
 			>
-				<p className="text-sm text-muted-foreground mt-14">
+				<p className="text-sm text-muted-foreground mt-[75px]">
 					Fotoğrafları sürükleyip bırakın veya tıklayıp seçin
 				</p>
 			</div>
