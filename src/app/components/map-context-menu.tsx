@@ -8,16 +8,27 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { AuthUser } from "@/db/schema";
 import { Portal } from "@radix-ui/react-portal";
 import { Flag, MapIcon, MapPinned, Pin, SquareArrowOutUpRight } from "lucide-react";
+import Link from "next/link";
 import { useRef, useState } from "react";
 import { useMapStore } from "./map-store";
 import { NewReportModal } from "./new-report-modal";
 
-export default function MapContextMenu() {
+export default function MapContextMenu({ user }: { user: AuthUser | null }) {
 	const portalRef = useRef<HTMLDivElement>(null);
 	const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
 	const { contextMenu, setContextMenu } = useMapStore();
+
+	const ReportButtonContent = () => {
+		return (
+			<>
+				<Flag size={16} />
+				Bildir
+			</>
+		);
+	};
 
 	return (
 		<Portal
@@ -47,24 +58,34 @@ export default function MapContextMenu() {
 					</DropdownMenuLabel>
 					<DropdownMenuSeparator />
 
-					<NewReportModal
-						isOpen={isNewReportModalOpen}
-						onOpenChange={setIsNewReportModalOpen}
-						lat={contextMenu.mapCoords.lat}
-						lng={contextMenu.mapCoords.lng}
-						trigger={
-							<DropdownMenuItem
-								className="cursor-pointer"
-								onClick={(e) => {
-									e.preventDefault();
-									setIsNewReportModalOpen(true);
-								}}
-							>
-								<Flag size={16} />
-								Bildir
-							</DropdownMenuItem>
-						}
-					/>
+					{user && (
+						<NewReportModal
+							isOpen={isNewReportModalOpen}
+							onOpenChange={setIsNewReportModalOpen}
+							lat={contextMenu.mapCoords.lat}
+							lng={contextMenu.mapCoords.lng}
+							trigger={
+								<DropdownMenuItem
+									className="cursor-pointer"
+									onClick={(e) => {
+										e.preventDefault();
+										setIsNewReportModalOpen(true);
+									}}
+								>
+									<ReportButtonContent />
+								</DropdownMenuItem>
+							}
+						/>
+					)}
+
+					{!user && (
+						<DropdownMenuItem className="cursor-pointer" asChild>
+							<Link href="/auth/sign-in" className="flex items-center gap-2 ">
+								<ReportButtonContent />
+							</Link>
+						</DropdownMenuItem>
+					)}
+
 					<DropdownMenuItem
 						onClick={() => {
 							window.open(

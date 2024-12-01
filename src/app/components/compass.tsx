@@ -60,6 +60,8 @@ export const Compass = ({ degree }: CompassProps) => {
 
 		// Update map bearing based on pointer position
 		const updateMapBearing = (clientX: number, clientY: number) => {
+			if (!map) return;
+
 			const rect = compassRef.current?.getBoundingClientRect();
 			if (!rect || !dragStartPosition.current) return;
 
@@ -75,7 +77,7 @@ export const Compass = ({ degree }: CompassProps) => {
 			const angleDiff = currentAngle - startAngle;
 
 			// Apply the difference to the initial bearing
-			map?.jumpTo({ bearing: initialBearing.current - angleDiff });
+			map.jumpTo({ bearing: initialBearing.current - angleDiff });
 		};
 
 		// Handle drag with animation frame optimization

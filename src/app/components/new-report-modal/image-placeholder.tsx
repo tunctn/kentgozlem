@@ -32,7 +32,7 @@ export const ImagePlaceholder = memo(
 					data-dropzone-dragging={isDropzoneDragging}
 					data-order-dragging={isOrderDragging}
 					className={cn(
-						"shadow-lg dark:shadow-white/5 rounded-[18px] w-[107px] relative ease-in-out aspect-square shrink-0 transition-all rounded-[24px]",
+						"shadow-lg rounded-[18px] w-[107px] relative ease-in-out aspect-square shrink-0 transition-all rounded-[24px]",
 						{
 							"rotate-[7deg] hover:rotate-[12deg]": file.order === 0,
 							"rotate-[-4deg] hover:rotate-[4deg]": file.order === 1,
@@ -68,7 +68,7 @@ export const ImagePlaceholder = memo(
 								<Squircle
 									cornerRadius={18}
 									cornerSmoothing={1}
-									className="h-full w-full bg-foreground/15 p-px"
+									className="h-full w-full bg-foreground/7 p-px"
 								>
 									<Squircle
 										cornerRadius={17}

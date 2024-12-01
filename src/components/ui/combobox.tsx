@@ -54,7 +54,7 @@ export function Combobox<T extends string | number>({
 						isDisabled={isDisabled || isLoading}
 						className={cn(
 							"relative",
-							"justify-between w-full bg-background border-input hover:bg-background/80 ",
+							"justify-between w-full border-foreground/10 hover:bg-background/20 ",
 							"placeholder:text-muted-foreground/40",
 							"disabled:cursor-not-allowed disabled:opacity-50 min-w-0",
 						)}
@@ -73,10 +73,10 @@ export function Combobox<T extends string | number>({
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent
-					className="w-[var(--radix-popover-trigger-width)] p-0"
+					className="w-[var(--radix-popover-trigger-width)] p-0 bg-foreground rounded-xl"
 					container={containerRef.current}
 				>
-					<Command>
+					<Command className="bg-background/90">
 						<CommandInput placeholder={searchPlaceholder} {...commandInputProps} />
 						<CommandList>
 							<CommandEmpty {...commandEmptyProps}>{empty}</CommandEmpty>

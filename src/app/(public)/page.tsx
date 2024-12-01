@@ -1,3 +1,4 @@
+import { getUser } from "@/server/get-user";
 import { getInitialMapConfig } from "@/utils/get-initial-map-config";
 import MapContextMenu from "../components/map-context-menu";
 import { MapControls } from "../components/map-controls";
@@ -7,6 +8,7 @@ import { Mapbox } from "../components/mapbox";
 import { MapReports } from "./map-reports";
 
 export default async function Home() {
+	const { user } = await getUser();
 	const { lightPreset, show3dObjects, viewState } = await getInitialMapConfig();
 
 	return (
@@ -14,7 +16,7 @@ export default async function Home() {
 			<MapLayout>
 				<Mapbox initialConfig={{ lightPreset, show3dObjects, viewState }} />
 				<MapReports />
-				<MapContextMenu />
+				<MapContextMenu user={user} />
 
 				<MapPanel className="flex items-center gap-2" position="bottom-right">
 					<MapControls />

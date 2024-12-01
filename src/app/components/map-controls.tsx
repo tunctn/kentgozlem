@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
+import * as Slider from "@radix-ui/react-slider";
 import { LocateFixed, Minus, Plus } from "lucide-react";
 import mapboxgl from "mapbox-gl";
 import { useEffect, useRef } from "react";
@@ -26,36 +27,65 @@ export const MapControls = () => {
 		}
 	}, [map, userCoords]);
 
+	const handlePitchChange = (value: number[]) => {
+		if (!map) return;
+
+		map.jumpTo({ pitch: value[0] });
+	};
+
 	return (
-		<div className="flex flex-col items-center gap-2">
-			<Compass degree={viewState.bearing} />
+		<div className="flex gap-1 items-end h-full">
+			<div className="flex flex-col items-center gap-2">
+				{userCoords.lat !== 0 && userCoords.lng !== 0 && (
+					<CurrentLocationMarker ref={currentLocationMarker} />
+				)}
 
-			{userCoords.lat !== 0 && userCoords.lng !== 0 && (
-				<CurrentLocationMarker ref={currentLocationMarker} />
-			)}
+				<Button variant="glass" size="xs-icon" className="rounded-lg" onClick={locateUser}>
+					<LocateFixed size={16} />
+				</Button>
+				{/* Zoom Buttons */}
+				<ButtonGroup className="flex flex-col items-center" variant="glass">
+					<Button
+						variant="glass"
+						grouped={true}
+						size="2xs-icon"
+						onClick={() => map?.easeTo({ zoom: map.getZoom() + 1 })}
+					>
+						<Plus size={16} />
+					</Button>
+					<Button
+						variant="glass"
+						grouped={true}
+						size="2xs-icon"
+						onClick={() => map?.easeTo({ zoom: map.getZoom() - 1 })}
+					>
+						<Minus size={16} />
+					</Button>
+				</ButtonGroup>
+			</div>
 
-			<Button variant="glass" size="icon" onClick={locateUser}>
-				<LocateFixed size={16} />
-			</Button>
-			{/* Zoom Buttons */}
-			<ButtonGroup className="flex flex-col items-center" variant="glass">
-				<Button
-					variant="glass"
-					grouped={true}
-					size="sm-icon"
-					onClick={() => map?.easeTo({ zoom: map.getZoom() + 1 })}
-				>
-					<Plus size={16} />
-				</Button>
-				<Button
-					variant="glass"
-					grouped={true}
-					size="sm-icon"
-					onClick={() => map?.easeTo({ zoom: map.getZoom() - 1 })}
-				>
-					<Minus size={16} />
-				</Button>
-			</ButtonGroup>
+			<div className="flex flex-col items-center gap-2">
+				<Compass degree={viewState.bearing} />
+
+				<div className="w-[30px] h-[60px] rounded-lg flex items-center justify-center py-3 glass-looking">
+					<Slider.Root
+						className="relative flex h-full w-5 touch-none select-none items-center"
+						max={85}
+						step={1}
+						value={[viewState.pitch ?? 1]}
+						orientation="vertical"
+						onValueChange={handlePitchChange}
+					>
+						<Slider.Track className="relative h-full w-[3px] left-1/2 -translate-x-1/2 rounded-full bg-foreground/10">
+							<Slider.Range className="absolute h-full rounded-full bg-white" />
+						</Slider.Track>
+						<Slider.Thumb
+							className="block size-2 ml-[6px] rounded-[10px] cursor-grab active:cursor-grabbing !bg-white !bg-white/60 hover:!bg-white focus:outline-none"
+							aria-label="Volume"
+						/>
+					</Slider.Root>
+				</div>
+			</div>
 		</div>
 	);
 };

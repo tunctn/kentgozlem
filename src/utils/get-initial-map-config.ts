@@ -36,9 +36,15 @@ export const getInitialMapConfig = async (): Promise<InitialMapConfig> => {
 	}
 
 	// Get mapbox light preset
-	const lightPreset = cookieStore.get(COOKIES.MAPBOX_LIGHT_PRESET)?.value as unknown as LightPreset;
+	const lightPreset = cookieStore.get(COOKIES.MAPBOX_LIGHT_PRESET)?.value as unknown as
+		| LightPreset
+		| "auto";
 	if (lightPreset) {
-		initialConfig.lightPreset = lightPreset;
+		if (lightPreset === "auto") {
+			initialConfig.lightPreset = getAutoTheme().lightPreset;
+		} else {
+			initialConfig.lightPreset = lightPreset;
+		}
 	}
 
 	// Get theme

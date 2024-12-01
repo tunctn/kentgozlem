@@ -18,7 +18,7 @@ export default function SignUpPage() {
 				<EmailSignUpForm />
 			</div>
 			<Separator className="my-5" />
-			<div className="text-sm justify-center text-muted-foreground flex items-center gap-1 mt-5">
+			<div className="text-xs justify-center text-muted-foreground flex items-center gap-1 mt-5">
 				<Link href="/auth/sign-in" className="underline underline-offset-4 hover:text-foreground">
 					Zaten hesabınız var mı? Giriş yap
 				</Link>

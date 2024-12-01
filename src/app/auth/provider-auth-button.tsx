@@ -17,21 +17,21 @@ export function ProviderAuthButton({
 
 	if (provider === "login-with-email") {
 		return (
-			<Button className={cn("shadow-none ", className)} size="lg" variant="link" asChild {...props}>
+			<Button className={cn("shadow-none text-xs", className)} variant="link" asChild {...props}>
 				<Link href="/auth/sign-in/email">{children}</Link>
 			</Button>
 		);
 	}
 	if (provider === "sign-up-with-email") {
 		return (
-			<Button className={cn("shadow-none", className)} size="lg" variant="link" asChild {...props}>
+			<Button className={cn("shadow-none text-xs", className)} variant="link" asChild {...props}>
 				<Link href="/auth/sign-up">{children}</Link>
 			</Button>
 		);
 	}
 
 	return (
-		<Button className={cn(className)} size="lg" asChild {...props}>
+		<Button className={cn("text-xs", className)} asChild {...props}>
 			<a href={`/api/auth/oauth/${provider}?redirect_url=${origin}`}>{children}</a>
 		</Button>
 	);

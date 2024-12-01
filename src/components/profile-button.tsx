@@ -34,6 +34,37 @@ const useLogout = () => {
 
 const ICON_SIZE = 14;
 
+const UserAvatar = ({ className, user }: { className?: string; user: AuthUser | null }) => {
+	return (
+		<Avatar className={cn("h-8 w-8 rounded-lg ", className)}>
+			<AvatarImage
+				src={user?.avatar_url ?? undefined}
+				alt={user?.name ?? undefined}
+				referrerPolicy="no-referrer"
+			/>
+			<AvatarFallback className="rounded-lg">
+				<UserIcon size={ICON_SIZE} />
+			</AvatarFallback>
+		</Avatar>
+	);
+};
+
+const UserLabel = ({ className, user }: { className?: string; user: AuthUser | null }) => {
+	if (!user) return null;
+
+	return (
+		<div className={cn("flex items-center gap-2 px-2 py-1 text-left text-sm w-full", className)}>
+			<UserAvatar className="h-8 w-8 rounded-lg" user={user} />
+			<div className="flex flex-col w-full gap-0.5 text-left text-sm leading-tight">
+				<span className="truncate font-semibold">{user.name}</span>
+				<span className="truncate text-xs font-normal text-muted-foreground">
+					{user.email_address ?? ""}
+				</span>
+			</div>
+		</div>
+	);
+};
+
 export function ProfileButton({ user }: { user: AuthUser | null }) {
 	const autoTheme = getAutoTheme();
 
@@ -46,37 +77,6 @@ export function ProfileButton({ user }: { user: AuthUser | null }) {
 		});
 	};
 
-	const UserAvatar = ({ className }: { className?: string }) => {
-		return (
-			<Avatar className={cn("h-8 w-8 rounded-lg ", className)}>
-				<AvatarImage
-					src={user?.avatar_url ?? undefined}
-					alt={user?.name ?? undefined}
-					referrerPolicy="no-referrer"
-				/>
-				<AvatarFallback className="rounded-lg">
-					<UserIcon size={ICON_SIZE} />
-				</AvatarFallback>
-			</Avatar>
-		);
-	};
-
-	const UserLabel = ({ className }: { className?: string }) => {
-		if (!user) return null;
-
-		return (
-			<div className={cn("flex items-center gap-2 px-2 py-1 text-left text-sm w-full", className)}>
-				<UserAvatar className="h-8 w-8 rounded-lg" />
-				<div className="flex flex-col w-full gap-0.5 text-left text-sm leading-tight">
-					<span className="truncate font-semibold">{user.name}</span>
-					<span className="truncate text-xs font-normal text-muted-foreground">
-						{user.email_address ?? ""}
-					</span>
-				</div>
-			</div>
-		);
-	};
-
 	const themeStore = useThemeStore();
 	const { setTheme } = useTheme();
 	const { map, setShow3dObjects, show3dObjects } = useMapStore();
@@ -87,7 +87,7 @@ export function ProfileButton({ user }: { user: AuthUser | null }) {
 			const autoLightPreset = getAutoTheme().lightPreset;
 			const autoTheme = getAutoTheme().theme;
 			themeStore.setTheme(null);
-			themeStore.setLightPreset(null);
+			themeStore.setLightPreset("auto");
 
 			setTheme(autoTheme);
 			map?.setConfig("basemap", {
@@ -118,12 +118,12 @@ export function ProfileButton({ user }: { user: AuthUser | null }) {
 	return (
 		<DropdownMenu modal={false}>
 			<DropdownMenuTrigger className="glass-looking cursor-pointer rounded-lg">
-				<UserAvatar />
+				<UserAvatar user={user} />
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="min-w-[200px]" align="end">
 				{user && (
 					<DropdownMenuLabel>
-						<UserLabel className="px-0 py-0" />
+						<UserLabel className="px-0 py-0" user={user} />
 					</DropdownMenuLabel>
 				)}
 				{!user && (
@@ -172,23 +172,28 @@ export function ProfileButton({ user }: { user: AuthUser | null }) {
 							{autoTheme.lightPreset === "dusk" && <Dusk size={ICON_SIZE} />}
 							{autoTheme.lightPreset === "night" && <Moon size={ICON_SIZE} strokeWidth={1.5} />}
 							Otomatik
+							{themeStore.lightPreset === "auto" ? <Check size={ICON_SIZE} /> : null}
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem onClick={() => handleTheme("dawn")}>
 							<Dusk size={ICON_SIZE} />
 							Gün Doğumu
+							{themeStore.lightPreset === "dawn" ? <Check size={ICON_SIZE} /> : null}
 						</DropdownMenuItem>
 						<DropdownMenuItem onClick={() => handleTheme("day")}>
 							<Sun size={ICON_SIZE} strokeWidth={1.5} />
 							Gün
+							{themeStore.lightPreset === "day" ? <Check size={ICON_SIZE} /> : null}
 						</DropdownMenuItem>
 						<DropdownMenuItem onClick={() => handleTheme("dusk")}>
 							<Dawn size={ICON_SIZE} />
 							Gün Batımı
+							{themeStore.lightPreset === "dusk" ? <Check size={ICON_SIZE} /> : null}
 						</DropdownMenuItem>
 						<DropdownMenuItem onClick={() => handleTheme("night")}>
 							<Moon size={ICON_SIZE} strokeWidth={1.5} />
 							Gece
+							{themeStore.lightPreset === "night" ? <Check size={ICON_SIZE} /> : null}
 						</DropdownMenuItem>
 					</DropdownMenuSubContent>
 				</DropdownMenuSub>

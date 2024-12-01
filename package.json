@@ -31,6 +31,7 @@
 		"@radix-ui/react-portal": "^1.1.2",
 		"@radix-ui/react-select": "^2.1.2",
 		"@radix-ui/react-separator": "^1.1.0",
+		"@radix-ui/react-slider": "^1.2.1",
 		"@radix-ui/react-slot": "^1.1.0",
 		"@react-spring/web": "^9.7.5",
 		"@squircle-js/react": "^1.2.0",

@@ -11,8 +11,8 @@ interface ThemeStore {
 	theme: Theme;
 	setTheme: (theme: Theme | null) => void;
 
-	lightPreset: LightPreset;
-	setLightPreset: (lightPreset: LightPreset | null) => void;
+	lightPreset: LightPreset | "auto";
+	setLightPreset: (lightPreset: LightPreset | "auto") => void;
 }
 
 export const useThemeStore = create<ThemeStore>((set, get) => ({
@@ -40,7 +40,7 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
 			set({ lightPreset });
 		} else {
 			removeCookie(COOKIES.MAPBOX_LIGHT_PRESET);
-			set({ lightPreset: getAutoTheme().lightPreset });
+			set({ lightPreset: "auto" });
 		}
 	},
 }));

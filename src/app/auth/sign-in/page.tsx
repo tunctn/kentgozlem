@@ -25,7 +25,7 @@ export default function SignInPage() {
 			</div>
 			<Separator className="my-5" text="veya" />
 
-			<div className="text-sm justify-center text-muted-foreground flex items-center gap-1 mt-5">
+			<div className="text-xs justify-center text-muted-foreground flex items-center gap-1 mt-5">
 				<Link href="/auth/sign-up" className="underline underline-offset-4 hover:text-foreground">
 					Hesabınız yok mu? Kayıt ol
 				</Link>
