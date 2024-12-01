@@ -34,7 +34,7 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
 		const lightPreset = getCookie(COOKIES.MAPBOX_LIGHT_PRESET);
 		return lightPreset ?? getAutoTheme().lightPreset;
 	})(),
-	setLightPreset: (lightPreset: LightPreset | null) => {
+	setLightPreset: (lightPreset: LightPreset | "auto") => {
 		if (lightPreset) {
 			saveCookie(COOKIES.MAPBOX_LIGHT_PRESET, lightPreset);
 			set({ lightPreset });
