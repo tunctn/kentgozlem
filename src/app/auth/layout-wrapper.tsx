@@ -28,7 +28,10 @@ export default function AuthLayoutWrapper({ children, initialMapConfig }: AuthLa
 			)}
 		>
 			<OAuthMessageToasts />
-			<Logo className="md:absolute md:top-2 md:left-1/2 md:-translate-x-1/2 md:-ml-1 " />
+			<Logo
+				className="md:absolute md:top-2 md:left-1/2 md:-translate-x-1/2 md:-ml-1 "
+				theme={initialMapConfig.theme}
+			/>
 
 			<div className="w-full mt-10 md:mt-0 max-w-md md:max-w-sm z-10 md:h-auto rounded-md">
 				<div className={cn("p-6 glass-looking rounded-[inherit]")}>{children}</div>
