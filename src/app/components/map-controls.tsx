@@ -80,7 +80,7 @@ export const MapControls = () => {
 							<Slider.Range className="absolute h-full rounded-full bg-white" />
 						</Slider.Track>
 						<Slider.Thumb
-							className="block size-2 ml-[6px] rounded-[10px] cursor-grab active:cursor-grabbing !bg-white !bg-white/60 hover:!bg-white focus:outline-none"
+							className="block size-2 ml-[6px] rounded-[10px] cursor-grab active:cursor-grabbing !bg-foreground !bg-foreground/60 hover:!bg-foreground focus:outline-none"
 							aria-label="Volume"
 						/>
 					</Slider.Root>
