@@ -35,11 +35,11 @@ export const lucia = new Lucia(adapter, {
 	getUserAttributes: (attributes) => {
 		return {
 			id: attributes.id,
-			googleId: attributes.googleId,
+			google_id: attributes.google_id,
 			name: attributes.name,
-			email: attributes.emailAddress,
+			email_address: attributes.email_address,
 			role: attributes.role,
-			image: attributes.avatarUrl,
+			avatar_url: attributes.avatar_url,
 		} satisfies AuthUser;
 	},
 });

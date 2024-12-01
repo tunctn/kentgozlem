@@ -1,4 +1,4 @@
-type LocalStorageKey = "map-view-state" | "last-user-coords";
+type LocalStorageKey = "map-view-state" | "last-user-coords" | "light-preset";
 
 export type MapViewState = {
 	center: [number, number];
@@ -8,9 +8,12 @@ export type MapViewState = {
 };
 export type UserCoords = [number, number];
 
+export type LightPreset = "day" | "night" | "dusk" | "dawn";
+
 type LocalStorageValues = {
 	"map-view-state": MapViewState;
 	"last-user-coords": UserCoords;
+	"light-preset": LightPreset;
 };
 
 export const saveToLocalStorage = <K extends LocalStorageKey>(
@@ -36,4 +39,9 @@ export const getFromLocalStorage = <K extends LocalStorageKey>(
 	} catch (error) {
 		return null;
 	}
+};
+
+export const removeFromLocalStorage = (key: LocalStorageKey) => {
+	if (typeof document === "undefined") return;
+	document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 };

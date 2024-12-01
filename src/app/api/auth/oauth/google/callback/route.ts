@@ -42,7 +42,7 @@ export const GET = apiRoute({
 			const existingUserRows = await db
 				.select()
 				.from(users)
-				.where(eq(users.googleId, googleUser.sub));
+				.where(eq(users.google_id, googleUser.sub));
 			const existingGoogleUser = existingUserRows[0];
 			if (existingGoogleUser) {
 				const session = await lucia.createSession(existingGoogleUser.id, {});
@@ -60,10 +60,10 @@ export const GET = apiRoute({
 			const existingUserWithEmailRows = await db
 				.select()
 				.from(users)
-				.where(eq(users.emailAddress, googleUser.email));
+				.where(eq(users.email_address, googleUser.email));
 			const existingUserWithEmail = existingUserWithEmailRows[0];
 			if (existingUserWithEmail) {
-				if (existingUserWithEmail.isEmailAddressVerified === false) {
+				if (existingUserWithEmail.is_email_address_verified === false) {
 					throw new ApiError(
 						403,
 						"Email address not verified. Please verify your email address to continue to login with Google.",
@@ -71,12 +71,12 @@ export const GET = apiRoute({
 				}
 				await db
 					.update(users)
-					.set({ googleId: googleUser.sub })
+					.set({ google_id: googleUser.sub })
 					.where(eq(users.id, existingUserWithEmail.id));
-				if (existingUserWithEmail.avatarUrl === null) {
+				if (existingUserWithEmail.avatar_url === null) {
 					await db
 						.update(users)
-						.set({ avatarUrl: googleUser.picture })
+						.set({ avatar_url: googleUser.picture })
 						.where(eq(users.id, existingUserWithEmail.id));
 				}
 				const session = await lucia.createSession(existingUserWithEmail.id, {});
@@ -94,11 +94,11 @@ export const GET = apiRoute({
 			const newUserRows = await db
 				.insert(users)
 				.values({
-					googleId: googleUser.sub,
+					google_id: googleUser.sub,
 					name: googleUser.name,
-					avatarUrl: googleUser.picture,
-					emailAddress: googleUser.email,
-					isEmailAddressVerified: true,
+					avatar_url: googleUser.picture,
+					email_address: googleUser.email,
+					is_email_address_verified: true,
 					role: "user",
 				})
 				.returning();

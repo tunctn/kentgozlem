@@ -1,5 +1,11 @@
 import { getTheme } from "@/utils/get-theme";
-import { type MapViewState, type UserCoords, saveToLocalStorage } from "@/utils/local-storage";
+import {
+	type LightPreset,
+	type MapViewState,
+	type UserCoords,
+	removeFromLocalStorage,
+	saveToLocalStorage,
+} from "@/utils/local-storage";
 import { create } from "zustand";
 
 interface MapCoords {
@@ -26,8 +32,6 @@ interface SetViewStateArgs {
 	saveCookie?: boolean;
 }
 
-export type LightPreset = "day" | "night" | "dusk" | "dawn";
-
 interface MapStore {
 	map: mapboxgl.Map | null;
 	setMap: (map: mapboxgl.Map | null) => void;
@@ -48,7 +52,7 @@ interface MapStore {
 	setUserCoords: (userCoords: MapCoords) => void;
 
 	lightPreset: LightPreset;
-
+	setLightPreset: (lightPreset: LightPreset) => void;
 	locateUser: () => void;
 }
 
@@ -83,6 +87,15 @@ export const useMapStore = create<MapStore>((set, get) => ({
 	},
 
 	lightPreset: getTheme().lightPreset,
+	setLightPreset: (lightPreset: LightPreset | null) => {
+		if (lightPreset) {
+			saveToLocalStorage("light-preset", lightPreset);
+			set({ lightPreset });
+		} else {
+			removeFromLocalStorage("light-preset");
+			set({ lightPreset: getTheme().lightPreset });
+		}
+	},
 
 	locateUser: () => {
 		if (!get().map) return;

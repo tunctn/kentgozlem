@@ -9,7 +9,7 @@ export default async function PublicLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const user = await getUser();
+	const { user } = await getUser();
 	return (
 		<div className="h-full w-full relative flex flex-col">
 			<div
@@ -20,7 +20,7 @@ export default async function PublicLayout({
 
 				<div className="flex items-center gap-2">
 					{user ? (
-						<ProfileButton user={user.user} />
+						<ProfileButton user={user} />
 					) : (
 						<div className="flex items-center gap-2">
 							<SignInButton />

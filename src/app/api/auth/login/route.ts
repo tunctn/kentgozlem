@@ -15,25 +15,25 @@ export const POST = apiRoute({ body: signInSchema }).loose(async (req) => {
 	const { email, password } = req.body;
 
 	// Check if user already exists
-	const existingUsers = await db.select().from(users).where(eq(users.emailAddress, email));
+	const existingUsers = await db.select().from(users).where(eq(users.email_address, email));
 	const existingUser = existingUsers[0];
 	if (!existingUser) {
 		throw new ApiError(400, "Kullanıcı bulunamadı veya şifre yanlış");
 	}
 
 	// This is not an OAuth user, so check for password hash
-	if (!existingUser.passwordHash) {
+	if (!existingUser.password_hash) {
 		throw new ApiError(400, "Kullanıcı bulunamadı veya şifre yanlış");
 	}
 
 	// logic to verify if the user exists
 	const dbuser = await db.query.users.findFirst({
-		where: (users, { eq }) => eq(users.emailAddress, email),
+		where: (users, { eq }) => eq(users.email_address, email),
 	});
 	if (!dbuser) throw new ApiError(400, "Kullanıcı bulunamadı veya şifre yanlış");
-	if (!dbuser.passwordHash) throw new ApiError(400, "Kullanıcı bulunamadı veya şifre yanlış");
+	if (!dbuser.password_hash) throw new ApiError(400, "Kullanıcı bulunamadı veya şifre yanlış");
 
-	const isPasswordValid = await verifyPassword(dbuser.passwordHash, password);
+	const isPasswordValid = await verifyPassword(dbuser.password_hash, password);
 	if (!isPasswordValid) throw new ApiError(400, "Kullanıcı bulunamadı veya şifre yanlış");
 	// return JSON object with the user data
 
@@ -51,11 +51,11 @@ export const POST = apiRoute({ body: signInSchema }).loose(async (req) => {
 
 	const response: AuthUser = {
 		id: dbuser.id,
-		googleId: dbuser.googleId,
+		google_id: dbuser.google_id,
 		name: dbuser.name,
-		email: dbuser.emailAddress,
+		email_address: dbuser.email_address,
 		role: dbuser.role,
-		image: dbuser.avatarUrl,
+		avatar_url: dbuser.avatar_url,
 	};
 	return NextResponse.json({ user: response }, { status: 201 });
 });

@@ -15,7 +15,7 @@ export const POST = apiRoute({ body: signupSchema }).loose(async (req) => {
 	const { email, password, name } = req.body;
 
 	// Check if user already exists
-	const existingUsers = await db.select().from(users).where(eq(users.emailAddress, email));
+	const existingUsers = await db.select().from(users).where(eq(users.email_address, email));
 	const existingUser = existingUsers[0];
 	if (existingUser) {
 		throw new ApiError(400, "Bu e-posta adresi zaten kullanılıyor");
@@ -28,8 +28,8 @@ export const POST = apiRoute({ body: signupSchema }).loose(async (req) => {
 	const [newUser] = await db
 		.insert(users)
 		.values({
-			emailAddress: email,
-			passwordHash,
+			email_address: email,
+			password_hash: passwordHash,
 			name,
 			role: "user",
 		})
@@ -49,11 +49,11 @@ export const POST = apiRoute({ body: signupSchema }).loose(async (req) => {
 
 	const user: AuthUser = {
 		id: newUser.id,
-		googleId: newUser.googleId,
+		google_id: newUser.google_id,
 		name: newUser.name,
-		email: newUser.emailAddress,
+		email_address: newUser.email_address,
 		role: newUser.role,
-		image: newUser.avatarUrl,
+		avatar_url: newUser.avatar_url,
 	};
 
 	return NextResponse.json({ user }, { status: 201 });
