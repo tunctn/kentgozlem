@@ -35,18 +35,12 @@ export default function MapContextMenu() {
 				onOpenChange={(open) => setContextMenu({ ...contextMenu, open })}
 			>
 				{contextMenu.open && (
-					<div className="h-[30px] w-[30px] absolute -top-[15px] -left-[15px] rounded-full bg-gradient-to-b from-blue-500 to-blue-600 border-blue-400 border shadow-md flex items-center justify-center">
+					<div className="h-[30px] w-[30px] absolute -top-[15px] -left-[15px] rounded-full bg-linear-to-b from-blue-500 to-blue-600 border-blue-400 border shadow-md flex items-center justify-center">
 						<Pin size={16} className="text-white" />
 					</div>
 				)}
 				<DropdownMenuTrigger />
-				<DropdownMenuContent
-					align="start"
-					side="right"
-					sideOffset={10}
-					alignOffset={10}
-					onContextMenu={(e) => e.preventDefault()}
-				>
+				<DropdownMenuContent align="start" side="right" sideOffset={10} alignOffset={10}>
 					<DropdownMenuLabel className="flex items-center gap-2">
 						<MapPinned size={16} />
 						{contextMenu.mapCoords.lat}, {contextMenu.mapCoords.lng}

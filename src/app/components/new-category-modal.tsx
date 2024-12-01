@@ -36,8 +36,8 @@ const useNewCategory = () => {
 		mutationFn: async (data: CreateCategoryPayload) => {
 			return await api.post<CreateCategoryResponse>("categories", { json: data }).json();
 		},
-		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
+		onSettled: async () => {
+			await queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
 		},
 	});
 };
@@ -49,6 +49,8 @@ export const NewCategoryModal = ({
 	label: string;
 	onSuccess: (categoryId: string) => void;
 }) => {
+	const queryClient = useQueryClient();
+
 	const newCategoryMutation = useNewCategory();
 	const [isOpen, setIsOpen] = useState(false);
 

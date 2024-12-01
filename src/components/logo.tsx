@@ -1,14 +1,14 @@
-"use client";
-
+import type { Theme } from "@/app/components/theme-store";
 import { cn } from "@/lib/utils";
-import { getTheme } from "@/utils/get-theme";
 import { Manrope } from "next/font/google";
 import Image from "next/image";
 import type { ComponentPropsWithRef } from "react";
 
 const font = Manrope({ subsets: ["latin"] });
 
-interface LogoProps extends ComponentPropsWithRef<"a"> {}
+interface LogoProps extends ComponentPropsWithRef<"a"> {
+	theme: Theme;
+}
 
 const LightLogo = () => {
 	return <Image src={"/kentgozlem_512w.png"} alt="Kent Gözlem" width={35} height={35} />;
@@ -18,8 +18,7 @@ const DarkLogo = () => {
 	return <Image src={"/kentgozlem_bgless_512w.png"} alt="Kent Gözlem" width={35} height={35} />;
 };
 
-export default function Logo({ className, ...props }: LogoProps) {
-	const { theme } = getTheme();
+export default function Logo({ className, theme, ...props }: LogoProps) {
 	return (
 		<a
 			href="/"

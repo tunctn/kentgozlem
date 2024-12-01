@@ -123,7 +123,7 @@ export const Compass = ({ degree }: CompassProps) => {
 			ref={compassRef}
 			type="button"
 			onClick={onClick}
-			className="relative rounded-full bg-background/[73%] backdrop-blur-lg w-[50px] h-[50px]"
+			className="relative rounded-full glass-looking cursor-pointer w-[50px] h-[50px]"
 		>
 			<svg
 				width="100%"

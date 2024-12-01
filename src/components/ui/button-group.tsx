@@ -12,7 +12,7 @@ export const ButtonGroup = ({ children, variant, className }: ButtonGroupProps) 
 			className={buttonVariants({
 				variant,
 				className: cn(
-					"rounded-lg flex items-center h-auto w-auto !p-0.5 !m-0 !gap-0 ",
+					"rounded-lg flex items-center h-auto w-auto p-0.5! m-0! gap-0! ",
 					{
 						"hover:bg-primary": variant === "default",
 						"hover:bg-destructive": variant === "destructive",

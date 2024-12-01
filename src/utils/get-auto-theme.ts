@@ -1,6 +1,6 @@
-import type { LightPreset } from "./local-storage";
+import type { LightPreset } from "@/app/components/mapbox";
 
-export const getTheme = (): { lightPreset: LightPreset; theme: "light" | "dark" } => {
+export const getAutoTheme = (): { lightPreset: LightPreset; theme: "light" | "dark" } => {
 	// Get current time and create Date object
 	const now = new Date();
 	const hours = now.getHours();

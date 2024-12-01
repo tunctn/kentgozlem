@@ -1,12 +1,7 @@
-import { getTheme } from "@/utils/get-theme";
-import {
-	type LightPreset,
-	type MapViewState,
-	type UserCoords,
-	removeFromLocalStorage,
-	saveToLocalStorage,
-} from "@/utils/local-storage";
+import { COOKIES } from "@/lib/cookies";
+import { getCookie, saveCookie } from "@/utils/cookies";
 import { create } from "zustand";
+import type { MapViewState, UserCoords } from "./mapbox";
 
 interface MapCoords {
 	lat: number;
@@ -51,8 +46,9 @@ interface MapStore {
 	userCoords: MapCoords;
 	setUserCoords: (userCoords: MapCoords) => void;
 
-	lightPreset: LightPreset;
-	setLightPreset: (lightPreset: LightPreset) => void;
+	show3dObjects: boolean;
+	setShow3dObjects: (show3dObjects: boolean) => void;
+
 	locateUser: () => void;
 }
 
@@ -72,7 +68,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
 	// Istanbul's coordinates
 	viewState: defaultViewState,
 	setViewState: (args) => {
-		if (args.saveCookie) saveToLocalStorage("map-view-state", args.viewState);
+		if (args.saveCookie) saveCookie(COOKIES.MAP_VIEW_STATE, args.viewState);
 
 		set({ viewState: args.viewState });
 	},
@@ -86,15 +82,13 @@ export const useMapStore = create<MapStore>((set, get) => ({
 		set({ contextMenu: { ...contextMenu } });
 	},
 
-	lightPreset: getTheme().lightPreset,
-	setLightPreset: (lightPreset: LightPreset | null) => {
-		if (lightPreset) {
-			saveToLocalStorage("light-preset", lightPreset);
-			set({ lightPreset });
-		} else {
-			removeFromLocalStorage("light-preset");
-			set({ lightPreset: getTheme().lightPreset });
-		}
+	show3dObjects: (() => {
+		const show3dObjects = getCookie(COOKIES.MAPBOX_3D_OBJECTS);
+		return show3dObjects;
+	})(),
+	setShow3dObjects: (show3dObjects: boolean) => {
+		saveCookie(COOKIES.MAPBOX_3D_OBJECTS, show3dObjects ? "true" : "false");
+		set({ show3dObjects });
 	},
 
 	locateUser: () => {
@@ -111,7 +105,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
 				bearing: 0,
 			};
 
-			saveToLocalStorage("last-user-coords", userCoords);
+			saveCookie(COOKIES.LAST_USER_COORDS, userCoords);
 			set({ userCoords: { lat: userCoords[1], lng: userCoords[0] } });
 			get().setViewState({ viewState: mapViewState, saveCookie: true });
 

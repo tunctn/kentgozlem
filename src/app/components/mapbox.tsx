@@ -7,8 +7,17 @@ import mapboxgl from "mapbox-gl";
 import { useEffect, useRef } from "react";
 
 import { cn } from "@/lib/utils";
-import { type MapViewState, type UserCoords, getFromLocalStorage } from "@/utils/local-storage";
-import { defaultViewState, useMapStore } from "./map-store";
+import { useMapStore } from "./map-store";
+
+export type UserCoords = [number, number];
+
+export type MapViewState = {
+	center: [number, number];
+	zoom: number;
+	pitch: number;
+	bearing: number;
+};
+export type LightPreset = "day" | "night" | "dusk" | "dawn";
 
 const refineMapCoord = (coord: number) => {
 	return Math.round(coord * 1000000) / 1000000;
@@ -25,15 +34,22 @@ interface MapboxProps {
 	authMap?: boolean;
 	staticState?: MapViewState;
 	disableInteractions?: boolean;
+
+	initialConfig: {
+		lightPreset: LightPreset;
+		show3dObjects: boolean;
+		viewState: MapViewState;
+	};
 }
 
 export const Mapbox = ({
 	authMap,
 	staticState: staticStateProp,
 	disableInteractions,
+	initialConfig,
 }: MapboxProps) => {
 	const mapContainerRef = useRef<HTMLDivElement>(null);
-	const { setMap, setContextMenu, lightPreset, setViewState, setLoaded } = useMapStore();
+	const { setMap, setContextMenu, setViewState, setLoaded } = useMapStore();
 
 	useEffect(() => {
 		if (!mapContainerRef.current) return;
@@ -43,22 +59,7 @@ export const Mapbox = ({
 			disableInteractions = true;
 		}
 
-		const localViewState = getFromLocalStorage("map-view-state") as MapViewState | null;
-		const lastUserCoords = getFromLocalStorage("last-user-coords") as UserCoords | null;
-
-		let viewState: MapViewState = defaultViewState;
-		if (lastUserCoords) {
-			viewState = {
-				center: lastUserCoords,
-				zoom: 15.5,
-				pitch: 0,
-				bearing: 0,
-			};
-		} else if (localViewState) {
-			viewState = localViewState;
-		}
-
-		if (staticState) viewState = staticState;
+		if (staticState) initialConfig.viewState = staticState;
 
 		const map = new mapboxgl.Map({
 			container: mapContainerRef.current,
@@ -66,7 +67,7 @@ export const Mapbox = ({
 			style: "mapbox://styles/mapbox/standard",
 			projection: "globe",
 			language: "tr",
-			...viewState,
+			...initialConfig.viewState,
 
 			dragPan: !disableInteractions,
 			dragRotate: !disableInteractions,
@@ -78,7 +79,8 @@ export const Mapbox = ({
 
 			config: {
 				basemap: {
-					lightPreset: lightPreset,
+					show3dObjects: initialConfig.show3dObjects,
+					lightPreset: initialConfig.lightPreset,
 				},
 			},
 		});
@@ -178,7 +180,7 @@ export const Mapbox = ({
 		authMap,
 		disableInteractions,
 		setLoaded,
-		lightPreset,
+		initialConfig,
 	]);
 
 	return (

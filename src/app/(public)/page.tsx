@@ -1,3 +1,4 @@
+import { getInitialMapConfig } from "@/utils/get-initial-map-config";
 import MapContextMenu from "../components/map-context-menu";
 import { MapControls } from "../components/map-controls";
 import MapLayout from "../components/map-layout";
@@ -6,10 +7,12 @@ import { Mapbox } from "../components/mapbox";
 import { MapReports } from "./map-reports";
 
 export default async function Home() {
+	const { lightPreset, show3dObjects, viewState } = await getInitialMapConfig();
+
 	return (
 		<div className="h-full w-full">
 			<MapLayout>
-				<Mapbox />
+				<Mapbox initialConfig={{ lightPreset, show3dObjects, viewState }} />
 				<MapReports />
 				<MapContextMenu />
 
