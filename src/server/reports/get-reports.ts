@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { type Report, categories, reportImages, reportUpvotes, reports } from "@/db/schema";
+import { type Report, categories, reportUpvotes, reports } from "@/db/schema";
 import { z } from "@/lib/zod";
 import { eq, sql } from "drizzle-orm";
 import type { LooseUserService } from "../types";
@@ -53,9 +53,11 @@ export const getReports = async (params: GetReportsParams): Promise<GetReportsRe
 					WHERE c.id = ${reports.category_id}
 				)`.as("category_name"),
 				thumbnail_image: sql<string | null>`(
-					SELECT ${reportImages.storage_path} 	
-					FROM ${reportImages} ri 
-					WHERE ri.report_id = ${reports.id}
+					SELECT image_url 
+					FROM report_images ri 
+					WHERE ri.report_id = reports.id
+					ORDER BY ri.order ASC
+					LIMIT 1
 				)`.as("thumbnail_image"),
 			},
 			orderBy: (reports, { desc }) => [desc(reports.created_at)],
@@ -112,9 +114,11 @@ export const getReports = async (params: GetReportsParams): Promise<GetReportsRe
 				WHERE c.id = ${reports.category_id}
 			)`.as("category_name"),
 			thumbnail_image: sql<string | null>`(
-				SELECT ${reportImages.storage_path} 
-				FROM ${reportImages} ri 
-				WHERE ri.report_id = ${reports.id}
+				SELECT image_url 
+				FROM report_images ri 
+				WHERE ri.report_id = reports.id
+				ORDER BY ri.order ASC
+				LIMIT 1
 			)`.as("thumbnail_image"),
 		},
 	});

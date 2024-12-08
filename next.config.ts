@@ -1,8 +1,13 @@
-import MillionLint from "@million/lint";
 import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
 
 const { NEXT_PUBLIC_STORAGE_URL } = process.env;
+if (!NEXT_PUBLIC_STORAGE_URL) {
+	throw new Error("NEXT_PUBLIC_STORAGE_URL is not set");
+}
+
+const asUrl = new URL(NEXT_PUBLIC_STORAGE_URL);
+const hostname = asUrl.hostname;
 
 const nextConfig: NextConfig = {
 	pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
@@ -15,7 +20,8 @@ const nextConfig: NextConfig = {
 		remotePatterns: [
 			{
 				protocol: "https",
-				hostname: `${NEXT_PUBLIC_STORAGE_URL}`.replace("https://", "").replace("http://", ""),
+				hostname,
+				pathname: "/**",
 			},
 		],
 	},
@@ -24,4 +30,4 @@ const nextConfig: NextConfig = {
 const withMDX = createMDX({
 	// Add markdown plugins here, as desired
 });
-export default MillionLint.next({ rsc: true })(withMDX(nextConfig));
+export default withMDX(nextConfig);

@@ -4,28 +4,16 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import * as Slider from "@radix-ui/react-slider";
 import { LocateFixed, Minus, Plus } from "lucide-react";
-import mapboxgl from "mapbox-gl";
-import { memo, useCallback, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { Compass } from "./compass";
-import { CurrentLocationMarker } from "./current-location-marker";
 import { useMapStore } from "./map-store";
 
 export const MapControls = memo(() => {
-	const currentLocationMarker = useRef<HTMLDivElement>(null);
-	const { map, viewState, locateUser, userCoords } = useMapStore();
+	const { map, viewState, locateUser } = useMapStore();
 
 	useEffect(() => {
 		locateUser();
 	}, [locateUser]);
-
-	useEffect(() => {
-		if (!map) return;
-		if (!currentLocationMarker.current) return;
-
-		if (userCoords.lat !== 0 && userCoords.lng !== 0) {
-			new mapboxgl.Marker(currentLocationMarker.current).setLngLat(userCoords).addTo(map);
-		}
-	}, [map, userCoords]);
 
 	const handlePitchChange = useCallback(
 		(value: number[]) => {
@@ -46,10 +34,6 @@ export const MapControls = memo(() => {
 	return (
 		<div className="flex gap-1 items-end h-full">
 			<div className="flex flex-col items-center gap-2">
-				{userCoords.lat !== 0 && userCoords.lng !== 0 && (
-					<CurrentLocationMarker ref={currentLocationMarker} />
-				)}
-
 				<Button variant="glass" size="xs-icon" className="rounded-lg" onClick={locateUser}>
 					<LocateFixed size={16} />
 				</Button>
@@ -79,7 +63,7 @@ export const MapControls = memo(() => {
 							<Slider.Range className="absolute h-full rounded-full bg-white" />
 						</Slider.Track>
 						<Slider.Thumb
-							className="block size-2 ml-[6px] rounded-[10px] cursor-grab active:cursor-grabbing !bg-foreground !bg-foreground/60 hover:!bg-foreground focus:outline-none"
+							className="block size-2 ml-[6px] rounded-[10px] cursor-grab active:cursor-grabbing !bg-foreground/60 hover:!bg-foreground focus:outline-none"
 							aria-label="Volume"
 						/>
 					</Slider.Root>

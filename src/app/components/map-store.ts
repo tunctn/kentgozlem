@@ -63,8 +63,8 @@ interface MapStore {
 
 	locateUser: () => void;
 
-	mapReportPopupId: string | null;
-	setMapReportPopupId: (id: string | null) => void;
+	expandedReportMarkerId: string | null;
+	setExpandedReportMarkerId: (id: string | null) => void;
 
 	mapReportDetailsDialogId: string | null;
 	setMapReportDetailsDialogId: (id: string | null) => void;
@@ -118,8 +118,8 @@ export const useMapStore = create<MapStore>((set, get) => ({
 		set({ show3dObjects });
 	},
 
-	mapReportPopupId: null,
-	setMapReportPopupId: (id: string | null) => set({ mapReportPopupId: id }),
+	expandedReportMarkerId: null,
+	setExpandedReportMarkerId: (id: string | null) => set({ expandedReportMarkerId: id }),
 
 	mapReportDetailsDialogId: null,
 	setMapReportDetailsDialogId: (id: string | null) => set({ mapReportDetailsDialogId: id }),

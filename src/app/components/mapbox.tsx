@@ -49,7 +49,8 @@ export const Mapbox = ({
 	initialConfig,
 }: MapboxProps) => {
 	const mapContainerRef = useRef<HTMLDivElement>(null);
-	const { setMap, setContextMenu, setViewState, setLoaded, setCurrentBoundingBox } = useMapStore();
+	const { map, setMap, setContextMenu, setViewState, setLoaded, setCurrentBoundingBox } =
+		useMapStore();
 
 	const setBoundingBox = useCallback(
 		(bounds: LngLatBounds | null) => {
@@ -215,6 +216,31 @@ export const Mapbox = ({
 		initialConfig,
 		setBoundingBox,
 	]);
+
+	useEffect(() => {
+		if (!map) return;
+
+		const handleInteractiveElement = (e: mapboxgl.MapMouseEvent) => {
+			// Check if the clicked element or any of its parents has data-interactive
+			const clickedElement = e.originalEvent.target as HTMLElement;
+			const interactiveElement = clickedElement.closest('[data-interactive="true"]');
+
+			if (interactiveElement) {
+				e.preventDefault();
+				map.stop();
+			}
+		};
+
+		map.on("dblclick", handleInteractiveElement);
+		map.on("click", handleInteractiveElement);
+
+		return () => {
+			if (map) {
+				map.off("dblclick", handleInteractiveElement);
+				map.off("click", handleInteractiveElement);
+			}
+		};
+	}, [map]);
 
 	return (
 		<div

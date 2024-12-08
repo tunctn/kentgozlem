@@ -3,7 +3,7 @@ import { getAutoTheme } from "@/utils/get-auto-theme";
 
 import { COOKIES } from "@/lib/cookies";
 import { create } from "zustand";
-import type { LightPreset } from "./mapbox";
+import type { LightPreset } from "./react-map";
 
 export type Theme = "light" | "dark";
 
