@@ -53,7 +53,10 @@ export const updateOne = async <T extends PgTable>(
 ): Promise<T["$inferSelect"]> => {
 	try {
 		const updatedRows = await tx.update(table).set(payload).where(where).returning();
-		const updatedRow = updatedRows[0];
+		const updatedRow = (updatedRows as T["$inferSelect"][])[0];
+		if (!updatedRow) {
+			throw new Error(`Failed to update row in ${table._.name}`);
+		}
 		return updatedRow;
 	} catch (error) {
 		throw new Error(`Failed to update row in ${table._.name}`);

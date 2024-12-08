@@ -1,14 +1,19 @@
 "use client";
+
 import { DraggableHorizontalList } from "@/components/draggable-horizontal-list";
 import { cn } from "@/lib/utils";
-import type { CreateReportPayload } from "@/zod-schemas/reports";
-import { useCallback, useEffect, useId, useState } from "react";
+import { type CreateReportPayload, IMAGE_EXTENSIONS } from "@/zod-schemas/reports";
+import { type Dispatch, type SetStateAction, useCallback, useEffect, useId, useState } from "react";
 import { ErrorCode, useDropzone } from "react-dropzone";
-import { useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { toast } from "sonner";
 import { ImagePlaceholder } from "./image-placeholder";
 
-export const ImagesForm = () => {
+interface ImagesFormProps {
+	setImageFiles: Dispatch<SetStateAction<Map<string, File> | undefined>>;
+}
+
+export const ImagesForm = ({ setImageFiles }: ImagesFormProps) => {
 	const [isOrderDragging, setIsOrderDragging] = useState(false);
 	const [isOrderDraggingDelayed, setIsOrderDraggingDelayed] = useState(false);
 
@@ -19,6 +24,11 @@ export const ImagesForm = () => {
 	const fileId5 = useId();
 
 	const form = useFormContext<CreateReportPayload>();
+	const imageFields = useFieldArray({
+		control: form.control,
+		name: "images",
+	});
+
 	const [files, setFiles] = useState<{ id: string; file: File | null; order: number }[]>([
 		{
 			id: fileId1,
@@ -46,6 +56,42 @@ export const ImagesForm = () => {
 			order: 4,
 		},
 	]);
+
+	useEffect(() => {
+		// Remove all fields
+		imageFields.remove();
+
+		const newImageFiles = new Map<string, File>();
+
+		for (const file of files) {
+			const fileData = file.file;
+			if (!fileData) continue;
+
+			const imageElement = document.getElementById(`image-${file.id}`);
+			if (!imageElement) continue;
+
+			const image = new Image();
+			image.src = URL.createObjectURL(fileData);
+
+			image.onload = () => {
+				newImageFiles.set(file.id, fileData);
+
+				imageFields.append({
+					field_array_id: file.id,
+					file_name: fileData.name,
+					storage_path: "",
+					size: fileData.size,
+					extension: fileData.type.split("/")[1],
+					mime_type: fileData.type,
+					width: image.naturalWidth,
+					height: image.naturalHeight,
+					order: file.order,
+				});
+			};
+		}
+
+		setImageFiles(newImageFiles);
+	}, [files, imageFields.remove, imageFields.append, setImageFiles]);
 
 	const onDrop = useCallback(
 		(acceptedFiles: File[]) => {
@@ -84,7 +130,7 @@ export const ImagesForm = () => {
 	} = useDropzone({
 		onDrop,
 		accept: {
-			"image/*": [".jpeg", ".jpg", ".png", ".webp", ".heic"],
+			"image/*": IMAGE_EXTENSIONS.map((ext) => `.${ext}`),
 		},
 		maxFiles: 5,
 		maxSize: 5 * 1024 * 1024, // 5MB

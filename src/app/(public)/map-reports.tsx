@@ -1,41 +1,83 @@
 "use client";
 
 import { useReports } from "@/lib/api/use-reports";
-import type { GetReportsQuery } from "@/server/reports/get-reports";
 import debounce from "lodash.debounce";
-import { useCallback, useEffect, useState } from "react";
-import { useMapStore } from "../components/map-store";
+import mapboxgl from "mapbox-gl";
+import { useCallback, useEffect } from "react";
+import { createRoot } from "react-dom/client";
+import { type BoundingBox, useMapStore } from "../components/map-store";
+import type { MapViewState } from "../components/mapbox";
+import { Marker } from "../components/marker";
 
 export const MapReports = () => {
-	const { viewState } = useMapStore();
-	const [query, setQuery] = useState<GetReportsQuery | null>(null);
+	const {
+		map,
+		viewState,
+		currentBoundingBox,
+		setIsFetchingReports,
+		mapReportPopupId,
+		mapMarkers,
+		setMapMarkers,
+	} = useMapStore();
 
-	// Move debounced function outside useEffect
 	const debouncedUpdateQuery = useCallback(
-		debounce((newViewState: typeof viewState) => {
-			if (!newViewState) return;
+		debounce((viewState: MapViewState, currentBoundingBox: BoundingBox) => {
+			if (!viewState || !currentBoundingBox) return null;
 
-			const query: GetReportsQuery = {
-				lat: newViewState.center[1],
-				lng: newViewState.center[0],
-				zoom: newViewState.zoom,
+			return {
+				sw_lat: currentBoundingBox.sw_lat,
+				sw_lng: currentBoundingBox.sw_lng,
+				ne_lat: currentBoundingBox.ne_lat,
+				ne_lng: currentBoundingBox.ne_lng,
+				zoom: viewState.zoom,
 			};
-			setQuery(query);
-		}, 200),
+		}, 300),
 		[],
 	);
 
-	useEffect(() => {
-		debouncedUpdateQuery(viewState);
-
-		return () => {
-			debouncedUpdateQuery.cancel();
-		};
-	}, [viewState, debouncedUpdateQuery]);
-
 	const reports = useReports({
-		query: query,
+		query: debouncedUpdateQuery(viewState, currentBoundingBox) ?? null,
 	});
 
-	return <div />;
+	useEffect(() => {
+		if (!map || !reports.data) return;
+		if (reports.isLoading) return;
+
+		const newMapMarkers: typeof mapMarkers = new Map();
+		const newMapPopups: mapboxgl.Popup[] = [];
+
+		for (const report of reports.data.reports) {
+			const element = document.createElement("div");
+			const root = createRoot(element);
+			root.render(<Marker report={report} />);
+
+			// const popupElement = document.createElement("div");
+			// const popupRoot = createRoot(popupElement);
+			// popupRoot.render(<PopupContent reportId={report.id} />);
+			// const popup = new mapboxgl.Popup({ offset: 25 }).setDOMContent(popupElement);
+
+			const marker = new mapboxgl.Marker(element)
+				// .setPopup(popup)
+				.setLngLat([Number.parseFloat(report.longitude), Number.parseFloat(report.latitude)])
+				.addTo(map);
+			newMapMarkers.set(report.id, marker);
+			// newMapPopups.push(popup);
+		}
+		setMapMarkers(newMapMarkers);
+
+		return () => {
+			for (const marker of newMapMarkers.values()) {
+				marker.remove();
+			}
+			// for (const popup of newMapPopups) {
+			// 	popup.remove();
+			// }
+		};
+	}, [map, reports.isLoading, reports.data, setMapMarkers]);
+
+	useEffect(() => {
+		setIsFetchingReports(reports.isLoading);
+	}, [reports.isLoading, setIsFetchingReports]);
+
+	return null;
 };

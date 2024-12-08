@@ -5,6 +5,7 @@ import { baseModelWithUser } from "../abstract";
 import { categories } from "../categories/categories";
 import { reportAudits } from "./report-audits";
 import { reportImages } from "./report-images";
+import { reportUpvotes } from "./report-upvotes";
 
 export const reportStatusEnum = pgEnum("report_status_enum", REPORT_STATUS);
 
@@ -47,6 +48,7 @@ export const reportsRelations = relations(reports, ({ one, many }) => ({
 	}),
 	images: many(reportImages),
 	audits: many(reportAudits),
+	upvotes: many(reportUpvotes),
 }));
 
 export type Report = typeof reports.$inferSelect;

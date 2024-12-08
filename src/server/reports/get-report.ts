@@ -1,4 +1,7 @@
 import { db } from "@/db";
+import { reports } from "@/db/schema";
+import { reportUpvotes } from "@/db/schema";
+import { sql } from "drizzle-orm";
 import type { LooseUserService } from "../types";
 
 interface GetReportParams extends LooseUserService {
@@ -29,6 +32,13 @@ export const getReport = async (params: GetReportParams) => {
 		with: {
 			images: true,
 			category: true,
+		},
+		extras: {
+			upvotes: sql<number>`(
+				SELECT COUNT(*)::int 
+				FROM ${reportUpvotes} ru 
+				WHERE ru.report_id = ${reports.id}
+			)`.as("upvotes"),
 		},
 	});
 

@@ -1,5 +1,6 @@
 import { getUser } from "@/server/get-user";
 import { getInitialMapConfig } from "@/utils/get-initial-map-config";
+import { FetchingReportsIndicator } from "../components/fetching-reports-indicator";
 import MapContextMenu from "../components/map-context-menu";
 import { MapControls } from "../components/map-controls";
 import MapLayout from "../components/map-layout";
@@ -17,7 +18,9 @@ export default async function Home() {
 				<Mapbox initialConfig={{ lightPreset, show3dObjects, viewState }} />
 				<MapReports />
 				<MapContextMenu user={user} />
-
+				<MapPanel className="flex items-center gap-2" position="top-center">
+					<FetchingReportsIndicator />
+				</MapPanel>
 				<MapPanel className="flex items-center gap-2" position="bottom-right">
 					<MapControls />
 				</MapPanel>

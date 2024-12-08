@@ -9,6 +9,7 @@ export const env = createEnv({
 		DATABASE_URL: z.string().url(),
 		DATABASE_SSL: z.enum(["true", "false"]),
 
+		S3_BUCKET: z.string().min(1),
 		S3_ACCESS_KEY_ID: z.string().min(1),
 		S3_SECRET_ACCESS_KEY: z.string().min(1),
 		S3_ENDPOINT: z.string().url(),
@@ -30,6 +31,7 @@ export const env = createEnv({
 		DATABASE_URL: process.env.DATABASE_URL,
 		DATABASE_SSL: process.env.DATABASE_SSL,
 		NEXT_PUBLIC_MAPBOX_API_KEY: process.env.NEXT_PUBLIC_MAPBOX_API_KEY,
+		S3_BUCKET: process.env.S3_BUCKET,
 		S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID,
 		S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY,
 		S3_ENDPOINT: process.env.S3_ENDPOINT,

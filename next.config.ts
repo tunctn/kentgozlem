@@ -1,5 +1,6 @@
-import type { NextConfig } from "next";
+import MillionLint from "@million/lint";
 import createMDX from "@next/mdx";
+import type { NextConfig } from "next";
 
 const { NEXT_PUBLIC_STORAGE_URL } = process.env;
 
@@ -23,4 +24,4 @@ const nextConfig: NextConfig = {
 const withMDX = createMDX({
 	// Add markdown plugins here, as desired
 });
-export default withMDX(nextConfig);
+export default MillionLint.next({ rsc: true })(withMDX(nextConfig));

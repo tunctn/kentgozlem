@@ -3,8 +3,8 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import { env } from "@/lib/env";
-import mapboxgl from "mapbox-gl";
-import { useEffect, useRef } from "react";
+import mapboxgl, { type LngLatBounds } from "mapbox-gl";
+import { useCallback, useEffect, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 import { useMapStore } from "./map-store";
@@ -49,7 +49,29 @@ export const Mapbox = ({
 	initialConfig,
 }: MapboxProps) => {
 	const mapContainerRef = useRef<HTMLDivElement>(null);
-	const { setMap, setContextMenu, setViewState, setLoaded } = useMapStore();
+	const { setMap, setContextMenu, setViewState, setLoaded, setCurrentBoundingBox } = useMapStore();
+
+	const setBoundingBox = useCallback(
+		(bounds: LngLatBounds | null) => {
+			if (!bounds) return;
+
+			const sw = bounds.getSouthWest();
+			const ne = bounds.getNorthEast();
+
+			const swLat = refineMapCoord(sw.lat);
+			const swLng = refineMapCoord(sw.lng);
+			const neLat = refineMapCoord(ne.lat);
+			const neLng = refineMapCoord(ne.lng);
+
+			setCurrentBoundingBox({
+				sw_lat: swLat,
+				sw_lng: swLng,
+				ne_lat: neLat,
+				ne_lng: neLng,
+			});
+		},
+		[setCurrentBoundingBox],
+	);
 
 	useEffect(() => {
 		if (!mapContainerRef.current) return;
@@ -98,6 +120,12 @@ export const Mapbox = ({
 			rotateCamera();
 		}
 
+		map.on("load", () => {
+			if (!map) return;
+
+			setBoundingBox(map.getBounds());
+		});
+
 		map.on("contextmenu", (e) => {
 			if (staticState) return;
 			e.preventDefault();
@@ -129,6 +157,10 @@ export const Mapbox = ({
 				pitch: map.getPitch(),
 				bearing: map.getBearing(),
 			};
+
+			const bounds = map.getBounds();
+			setBoundingBox(bounds);
+
 			setViewState({ viewState, saveCookie: true });
 		});
 
@@ -181,9 +213,14 @@ export const Mapbox = ({
 		disableInteractions,
 		setLoaded,
 		initialConfig,
+		setBoundingBox,
 	]);
 
 	return (
-		<div className={cn("h-full w-full", authMap && "pointer-events-none")} ref={mapContainerRef} />
+		<div
+			className={cn("h-full w-full", authMap && "pointer-events-none")}
+			ref={mapContainerRef}
+			id="mapbox"
+		/>
 	);
 };

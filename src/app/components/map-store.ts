@@ -26,6 +26,12 @@ interface SetViewStateArgs {
 	viewState: MapViewState;
 	saveCookie?: boolean;
 }
+export interface BoundingBox {
+	sw_lat: number;
+	sw_lng: number;
+	ne_lat: number;
+	ne_lng: number;
+}
 
 interface MapStore {
 	map: mapboxgl.Map | null;
@@ -34,11 +40,17 @@ interface MapStore {
 	loaded: boolean;
 	setLoaded: (loaded: boolean) => void;
 
+	isFetchingReports: boolean;
+	setIsFetchingReports: (isFetching: boolean) => void;
+
 	isDraggingCompass: boolean;
 	setIsDraggingCompass: (isDragging: boolean) => void;
 
 	viewState: MapViewState;
 	setViewState: (args: SetViewStateArgs) => void;
+
+	currentBoundingBox: BoundingBox;
+	setCurrentBoundingBox: (boundingBox: BoundingBox) => void;
 
 	contextMenu: ContextMenu;
 	setContextMenu: (contextMenu: ContextMenu) => void;
@@ -50,11 +62,23 @@ interface MapStore {
 	setShow3dObjects: (show3dObjects: boolean) => void;
 
 	locateUser: () => void;
+
+	mapReportPopupId: string | null;
+	setMapReportPopupId: (id: string | null) => void;
+
+	mapReportDetailsDialogId: string | null;
+	setMapReportDetailsDialogId: (id: string | null) => void;
+
+	mapMarkers: Map<string, mapboxgl.Marker>;
+	setMapMarkers: (markers: Map<string, mapboxgl.Marker>) => void;
 }
 
 export const useMapStore = create<MapStore>((set, get) => ({
 	map: null,
 	setMap: (map: mapboxgl.Map | null) => set({ map }),
+
+	isFetchingReports: false,
+	setIsFetchingReports: (isFetching: boolean) => set({ isFetchingReports: isFetching }),
 
 	loaded: false,
 	setLoaded: (loaded: boolean) => set({ loaded }),
@@ -64,6 +88,9 @@ export const useMapStore = create<MapStore>((set, get) => ({
 
 	userCoords: { lat: 0, lng: 0 },
 	setUserCoords: (userCoords) => set({ userCoords }),
+
+	currentBoundingBox: { sw_lat: 0, sw_lng: 0, ne_lat: 0, ne_lng: 0 },
+	setCurrentBoundingBox: (boundingBox) => set({ currentBoundingBox: boundingBox }),
 
 	// Istanbul's coordinates
 	viewState: defaultViewState,
@@ -91,6 +118,12 @@ export const useMapStore = create<MapStore>((set, get) => ({
 		set({ show3dObjects });
 	},
 
+	mapReportPopupId: null,
+	setMapReportPopupId: (id: string | null) => set({ mapReportPopupId: id }),
+
+	mapReportDetailsDialogId: null,
+	setMapReportDetailsDialogId: (id: string | null) => set({ mapReportDetailsDialogId: id }),
+
 	locateUser: () => {
 		if (!get().map) return;
 		if (!("geolocation" in navigator)) return;
@@ -115,4 +148,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
 			map.easeTo(mapViewState);
 		});
 	},
+
+	mapMarkers: new Map(),
+	setMapMarkers: (markers) => set({ mapMarkers: markers }),
 }));

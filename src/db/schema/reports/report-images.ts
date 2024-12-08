@@ -17,13 +17,13 @@ export const reportImages = pgTable(
 
 		// Metadata fields
 		file_name: varchar("file_name").notNull(), // original file name
-		mime_yype: varchar("mime_type").notNull(), // e.g., image/jpeg, image/png
+		mime_type: varchar("mime_type").notNull(), // e.g., image/jpeg, image/png
 		width: integer("width").notNull(),
 		height: integer("height").notNull(),
 
 		// Optional but useful fields
-		description: text("description"), // caption or description of the image
-		order: integer("order"), // if you want to maintain specific image order
+		description: text("description"),
+		order: integer("order"),
 	},
 	(table) => ({
 		reportIdIdx: index("report_images_report_id_idx").on(table.report_id),

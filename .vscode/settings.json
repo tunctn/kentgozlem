@@ -20,6 +20,7 @@
 		"titleBar.inactiveForeground": "#e7e7e799"
 	},
 	"peacock.color": "#5e26c2",
+	"editor.defaultFormatter": "biomejs.biome",
 	"[javascript]": {
 		"editor.defaultFormatter": "biomejs.biome"
 	},
@@ -27,7 +28,6 @@
 		"*.scss": "scss",
 		".env.*": "properties"
 	},
-	"editor.defaultFormatter": "biomejs.biome",
 	"editor.codeActionsOnSave": {
 		"source.organizeImports.biome": "explicit",
 		"source.removeUnusedImports": "explicit"

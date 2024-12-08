@@ -52,7 +52,13 @@ export const ImagePlaceholder = memo(
 					style={{ zIndex: file.order, transitionDuration: "400ms" }}
 				>
 					{/* Background provider */}
-					<Squircle cornerRadius={24} cornerSmoothing={1} className="h-full w-full bg-background">
+					<Squircle
+						cornerRadius={24}
+						cornerSmoothing={1}
+						className={cn("h-full w-full bg-background ", {
+							"!cursor-grab active:!cursor-grabbing": file.file,
+						})}
+					>
 						{/* First border */}
 						<Squircle
 							cornerRadius={24}
@@ -83,9 +89,10 @@ export const ImagePlaceholder = memo(
 											{file.file ? (
 												<Squircle cornerRadius={16} cornerSmoothing={1} asChild>
 													<img
+														id={`image-${file.id}`}
 														src={URL.createObjectURL(file.file)}
 														alt={`Preview ${index}`}
-														className="w-full h-full object-cover select-none pointer-events-none"
+														className="w-full h-full object-cover select-none pointer-events-none "
 													/>
 												</Squircle>
 											) : (

@@ -10,12 +10,15 @@ import {
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useAddressSearch } from "@/lib/api/use-address-search";
+import { useSubmitReport } from "@/lib/api/use-submit-report";
+import { useUploadImage } from "@/lib/api/use-upload-image";
 import { cn } from "@/lib/utils";
 import { type CreateReportPayload, createReportSchema } from "@/zod-schemas/reports";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { AddressForm } from "./address-form";
 import { DetailsForm } from "./details-form";
 import { ImagesForm } from "./images-form";
@@ -27,6 +30,7 @@ interface NewReportModalProps {
 	lat: number;
 	lng: number;
 }
+
 export const NewReportModal = ({
 	trigger,
 	isOpen,
@@ -64,6 +68,8 @@ export const NewReportModal = ({
 	const { data: address, isPending: isAddressSearchPending } = useAddressSearch({ lat, lng });
 	const isPending = isAddressSearchPending;
 
+	const [imageFiles, setImageFiles] = useState<Map<string, File> | undefined>();
+
 	const form = useForm<CreateReportPayload>({
 		resolver: zodResolver(createReportSchema),
 		defaultValues: {
@@ -79,6 +85,7 @@ export const NewReportModal = ({
 			suburb: "",
 			is_verified: false,
 			status: "pending",
+			images: [],
 		},
 		disabled: isPending,
 	});
@@ -112,8 +119,89 @@ export const NewReportModal = ({
 			case 2:
 				return <DetailsForm />;
 			case 3:
-				return <ImagesForm />;
+				return <ImagesForm setImageFiles={setImageFiles} />;
 		}
+	};
+
+	const uploadImage = useUploadImage();
+	const submitReport = useSubmitReport();
+
+	const validateForm = () => {
+		const errors = form.formState.errors;
+		type Keys = keyof CreateReportPayload;
+		const page1Fields: Keys[] = [
+			"lat",
+			"lng",
+			"street",
+			"city",
+			"postal_code",
+			"country",
+			"house_number",
+			"suburb",
+		];
+		const page2Fields: Keys[] = ["description", "category_id"];
+		const page3Fields: Keys[] = ["images"];
+
+		if (page1Fields.some((x) => errors[x])) return 1;
+		if (page2Fields.some((x) => errors[x])) return 2;
+		if (page3Fields.some((x) => errors[x])) return 3;
+		return 0;
+	};
+	const formValidationResult = validateForm();
+
+	const onSubmit = () => {
+		const formValidationResult = validateForm();
+		if (formValidationResult !== 0) {
+			setPage([formValidationResult, 1]);
+			toast.error("Lütfen tüm alanları doldurun.");
+			return;
+		}
+
+		if (page !== 3) {
+			return paginate(1);
+		}
+
+		form.handleSubmit(async (data) => {
+			const resizedImages = await Promise.all(
+				data.images.map(async (image) => {
+					const imageFile = imageFiles?.get(image.field_array_id);
+					if (!imageFile) throw new Error("Görsel bulunamadı.");
+
+					const uploaded = await uploadImage.mutateAsync(imageFile);
+					if (!uploaded) throw new Error("Görsel yüklenemedi.");
+					return {
+						...image,
+						uploaded,
+					};
+				}),
+			);
+
+			submitReport.mutate(
+				{
+					...data,
+					images: resizedImages.map((x) => ({
+						field_array_id: x.field_array_id,
+						description: x.description,
+						extension: x.uploaded.extension,
+						file_name: x.file_name,
+						height: x.uploaded.height,
+						width: x.uploaded.width,
+						size: x.uploaded.size,
+						order: x.order,
+						storage_path: x.uploaded.storage_path,
+						mime_type: x.uploaded.mime_type,
+					})),
+				},
+				{
+					onSuccess: () => {
+						toast.success("Bildirim başarıyla gönderildi.");
+						onOpenChange(false);
+						form.reset();
+						setImageFiles(undefined);
+					},
+				},
+			);
+		})();
 	};
 
 	return (
@@ -131,7 +219,13 @@ export const NewReportModal = ({
 						</DialogDescription>
 					</DialogHeader>
 
-					<div className="relative" style={{ height: 200 }}>
+					<div
+						className={cn("relative transition-all duration-300 ease-in-out h-[200px]", {
+							"h-[240px]": formValidationResult === 1 && page === 1,
+							"h-[210px]": formValidationResult === 2 && page === 2,
+							"h-[200px]": formValidationResult === 3 && page === 3,
+						})}
+					>
 						<AnimatePresence
 							mode="sync"
 							custom={direction}
@@ -165,19 +259,7 @@ export const NewReportModal = ({
 						<Button variant="outline" onClick={() => paginate(-1)} disabled={page === 1}>
 							Geri
 						</Button>
-						<Button
-							onClick={() => {
-								if (page === 3) {
-									// Submit form
-									form.handleSubmit((data) => {
-										// Handle form submission
-										console.log(data);
-									})();
-								} else {
-									paginate(1);
-								}
-							}}
-						>
+						<Button onClick={onSubmit} isLoading={submitReport.isPending}>
 							{page === 3 ? "Gönder" : "İleri"}
 						</Button>
 					</div>

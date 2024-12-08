@@ -5,12 +5,12 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import * as Slider from "@radix-ui/react-slider";
 import { LocateFixed, Minus, Plus } from "lucide-react";
 import mapboxgl from "mapbox-gl";
-import { useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import { Compass } from "./compass";
 import { CurrentLocationMarker } from "./current-location-marker";
 import { useMapStore } from "./map-store";
 
-export const MapControls = () => {
+export const MapControls = memo(() => {
 	const currentLocationMarker = useRef<HTMLDivElement>(null);
 	const { map, viewState, locateUser, userCoords } = useMapStore();
 
@@ -27,11 +27,21 @@ export const MapControls = () => {
 		}
 	}, [map, userCoords]);
 
-	const handlePitchChange = (value: number[]) => {
-		if (!map) return;
+	const handlePitchChange = useCallback(
+		(value: number[]) => {
+			if (!map) return;
+			map.jumpTo({ pitch: value[0] });
+		},
+		[map],
+	);
 
-		map.jumpTo({ pitch: value[0] });
-	};
+	const handleZoomIn = useCallback(() => {
+		map?.easeTo({ zoom: map.getZoom() + 1 });
+	}, [map]);
+
+	const handleZoomOut = useCallback(() => {
+		map?.easeTo({ zoom: map.getZoom() - 1 });
+	}, [map]);
 
 	return (
 		<div className="flex gap-1 items-end h-full">
@@ -43,22 +53,11 @@ export const MapControls = () => {
 				<Button variant="glass" size="xs-icon" className="rounded-lg" onClick={locateUser}>
 					<LocateFixed size={16} />
 				</Button>
-				{/* Zoom Buttons */}
 				<ButtonGroup className="flex flex-col items-center" variant="glass">
-					<Button
-						variant="glass"
-						grouped={true}
-						size="2xs-icon"
-						onClick={() => map?.easeTo({ zoom: map.getZoom() + 1 })}
-					>
+					<Button variant="glass" grouped={true} size="2xs-icon" onClick={handleZoomIn}>
 						<Plus size={16} />
 					</Button>
-					<Button
-						variant="glass"
-						grouped={true}
-						size="2xs-icon"
-						onClick={() => map?.easeTo({ zoom: map.getZoom() - 1 })}
-					>
+					<Button variant="glass" grouped={true} size="2xs-icon" onClick={handleZoomOut}>
 						<Minus size={16} />
 					</Button>
 				</ButtonGroup>
@@ -88,4 +87,6 @@ export const MapControls = () => {
 			</div>
 		</div>
 	);
-};
+});
+
+MapControls.displayName = "MapControls";

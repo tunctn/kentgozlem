@@ -10,8 +10,10 @@ export const GET = apiRoute({
 }).loose(async (req) => {
 	const user = req.user;
 	const result = await getReports({
-		lat: req.query.lat,
-		lng: req.query.lng,
+		sw_lat: req.query.sw_lat,
+		sw_lng: req.query.sw_lng,
+		ne_lat: req.query.ne_lat,
+		ne_lng: req.query.ne_lng,
 		zoom: req.query.zoom,
 		user,
 	});
