@@ -149,6 +149,7 @@ export const NewReportModal = ({
 	};
 	const formValidationResult = validateForm();
 
+	const [imagesLoading, setImagesLoading] = useState(false);
 	const onSubmit = () => {
 		const formValidationResult = validateForm();
 		if (formValidationResult !== 0) {
@@ -162,6 +163,11 @@ export const NewReportModal = ({
 		}
 
 		form.handleSubmit(async (data) => {
+			if (data.images.length > 0) {
+				setImagesLoading(true);
+				toast.loading("Görseller yükleniyor...");
+			}
+
 			const resizedImages = await Promise.all(
 				data.images.map(async (image) => {
 					const imageFile = imageFiles?.get(image.field_array_id);
@@ -174,7 +180,19 @@ export const NewReportModal = ({
 						uploaded,
 					};
 				}),
-			);
+			)
+				.then((res) => {
+					toast.success("Görseller yüklendi.");
+					return res;
+				})
+				.catch((err) => {
+					toast.error("Görseller yüklenirken bir hata oluştu.");
+					throw err;
+				})
+				.finally(() => {
+					setImagesLoading(false);
+					toast.dismiss();
+				});
 
 			submitReport.mutate(
 				{
@@ -259,7 +277,7 @@ export const NewReportModal = ({
 						<Button variant="outline" onClick={() => paginate(-1)} disabled={page === 1}>
 							Geri
 						</Button>
-						<Button onClick={onSubmit} isLoading={submitReport.isPending}>
+						<Button onClick={onSubmit} isLoading={imagesLoading || submitReport.isPending}>
 							{page === 3 ? "Gönder" : "İleri"}
 						</Button>
 					</div>
